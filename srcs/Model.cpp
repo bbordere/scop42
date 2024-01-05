@@ -33,8 +33,10 @@ Face Model::makeFace(std::vector<std::string> const &input, std::size_t v1,
 					 std::size_t v2, std::size_t v3) {
 	static std::vector<std::string> tmp;
 	Face face;
-	if (input[1].find("//") != std::string::npos)
+	if (input[1].find("//") != std::string::npos) {
 		face = vertexNormal(input, v1, v2, v3);
+		return (face);
+	}
 	split(input[1], "/", tmp);
 	switch (tmp.size()) {
 		case 1:
@@ -54,47 +56,13 @@ Face Model::makeFace(std::vector<std::string> const &input, std::size_t v1,
 }
 
 void Model::parseFace(std::vector<std::string> const &input) {
-	// clang-format off
-
-	// std::cout << input << '\n';
 	std::size_t len = input.size();
 	if (len != 4 && len != 5)
 		throw std::runtime_error("Face format not handled !");
-	
+
 	this->faces.push_back(makeFace(input, 1, 2, 3));
 	if (len == 5)
 		this->faces.push_back(makeFace(input, 3, 4, 1));
-
-
-	
-
-	// for (std::size_t i = 1; i < len; i++){
-	// 	if (input[i].find("//"))
-	// 		vertexNormal();
-	// 	else {
-	// 		split(input[i], "/", tmp);
-
-	// 		std::cout << tmp << '\n';
-	// 		tmp.clear();
-	// 	}
-	// }
-
-	// this->faces.push_back({
-	// 	{this->vertices[std::stoi(input[1]) - 1],
-	// 	 this->vertices[std::stoi(input[2]) - 1],
-	// 	 this->vertices[std::stoi(input[3]) - 1]},
-	// 	this->colorsPalette[this->faces.size() % 4]
-	// });
-	// if (input.size() == 5) {
-	// 	this->faces.push_back({
-	// 		{this->vertices[std::stoi(input[3]) - 1],
-	// 		this->vertices[std::stoi(input[4]) - 1],
-	// 		this->vertices[std::stoi(input[1]) - 1]},
-	// 		this->colorsPalette[this->faces.size() % 4]
-	// 	});
-	// }
-
-	// clang-format on
 }
 
 Face Model::vertexOnly(std::vector<std::string> const &input, std::size_t v1,
@@ -128,7 +96,6 @@ Face Model::vertexTexture(std::vector<std::string> const &input, std::size_t v1,
 Face Model::vertexTextureNormal(std::vector<std::string> const &input,
 								std::size_t v1, std::size_t v2,
 								std::size_t v3) {
-	// std::cout << "VERTEX TEXTURE NORMAL\n";
 	Face res;
 
 	std::size_t indices[] = {v1, v2, v3};

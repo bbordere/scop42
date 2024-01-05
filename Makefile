@@ -9,6 +9,7 @@ DEP_DIR = deps/
 FILES = $(SRCS_DIR)main.cpp $(SRCS_DIR)BmpImage.cpp $(SRCS_DIR)App.cpp\
 		$(SRCS_DIR)Shader.cpp $(SRCS_DIR)Utils.cpp $(SRCS_DIR)Model.cpp\
 		$(SRCS_DIR)Camera.cpp $(SRCS_DIR)Face.cpp $(SRCS_DIR)Light.cpp\
+		$(SRCS_DIR)KeyManager.cpp
 
 
 OBJS = $(patsubst $(SRCS_DIR)%.cpp, $(OBJ_DIR)%.o, $(FILES))
