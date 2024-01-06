@@ -60,7 +60,7 @@ void Model::parseFace(std::vector<std::string> const &input) {
 	if (len != 4 && len != 5)
 		throw std::runtime_error("Face format not handled !");
 
-	this->faces.push_back(makeFace(input, 1, 2, 3));
+	this->faces.push_back(makeFace(input, 3, 2, 1));
 	if (len == 5)
 		this->faces.push_back(makeFace(input, 3, 4, 1));
 }
@@ -77,8 +77,8 @@ Face Model::vertexOnly(std::vector<std::string> const &input, std::size_t v1,
 	res.texCoords[1] = {res.vertices[1].x + 1.0f, res.vertices[1].y + 1.0f};
 	res.texCoords[2] = {res.vertices[2].x + 1.0f, res.vertices[2].y + 1.0f};
 
-	vec3f dir = (res.vertices[1] - res.vertices[0])
-					.cross(res.vertices[2] - res.vertices[0]);
+	vec3f dir = (res.vertices[2] - res.vertices[0])
+					.cross(res.vertices[1] - res.vertices[0]);
 
 	res.normal = dir / dir.len();
 	res.color = this->colorsPalette[this->faces.size() % 4];

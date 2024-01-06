@@ -7,14 +7,12 @@
 #include "Mat4.hpp"
 #include "Model.hpp"
 #include "Shader.hpp"
+#include "SkyBox.hpp"
 #include "Vectors.hpp"
 #include <GLFW/glfw3.h>
 #include <cmath>
 #include <exception>
 #include <iostream>
-
-// #define STB_IMAGE_IMPLEMENTATION
-// #include "stb_image.h"
 
 class App {
 	private:
@@ -23,6 +21,7 @@ class App {
 		Camera camera;
 		KeyManager keyManager;
 		Model model3d;
+		SkyBox skybox;
 
 		bool isSpacePressed;
 		bool isTextured = true;
@@ -30,6 +29,8 @@ class App {
 		float delta = 0.0f;
 		float modelRotationAngle = 90.0f;
 		float blendingFActor = 0.0f;
+
+		unsigned int width, height;
 
 		GLenum const modes[3] = {GL_FILL, GL_LINE, GL_POINT};
 

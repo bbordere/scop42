@@ -134,6 +134,16 @@ class Mat4 {
 
 			*this *= rota;
 		}
+
+		void transformMat3() {
+			this->data[3] = static_cast<T>(0);
+			this->data[7] = static_cast<T>(0);
+			this->data[11] = static_cast<T>(0);
+			this->data[12] = static_cast<T>(0);
+			this->data[13] = static_cast<T>(0);
+			this->data[14] = static_cast<T>(0);
+			this->data[15] = static_cast<T>(0);
+		}
 };
 
 template <typename T>

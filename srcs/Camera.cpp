@@ -6,7 +6,7 @@ Camera::Camera() {
 
 void Camera::reset() {
 	this->pos = vec3f(-5, 0, 0);
-	this->target = vec3f(0, 0, 0);
+	this->target = vec3f(0, 0, -1);
 	this->up = vec3f(0, 1, 0);
 	this->rotation = vec3f(0, 0, 0);
 }

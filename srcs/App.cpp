@@ -2,10 +2,6 @@
 
 App::App() {}
 
-void test(App &instance) {
-	std::cout << "YES\n";
-}
-
 void App::closeWindow() {
 	glfwSetWindowShouldClose(this->window, true);
 }
@@ -21,8 +17,11 @@ void App::init(std::string const &path, std::string const &texturePath) {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	this->width = 1280;
+	this->height = 720;
 
-	this->window = glfwCreateWindow(800, 600, "scop", NULL, NULL);
+	this->window =
+		glfwCreateWindow(this->width, this->height, "scop", NULL, NULL);
 	if (!window) {
 		throw std::runtime_error("Cant init Window !");
 	}
@@ -106,8 +105,8 @@ void App::init(std::string const &path, std::string const &texturePath) {
 	GLuint texture;
 	glGenTextures(1, &texture);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
 	// GL_MIRRORED_REPEAT); glTexParameteri(GL_TEXTURE_2D,
@@ -195,16 +194,13 @@ void App::computeRendering(float &lastFrame, mat4f &model, Light const &light) {
 	this->delta = currentFrame - lastFrame;
 	lastFrame = currentFrame;
 
-	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 	if (this->isRotating)
-		model.rotate(15 * this->delta, vec3f(0.0f, 1.0f, 0.0f));
+		model.rotate(15 * this->delta, vec3f(0.0f, 2.0f, 0.0f));
 
 	this->camera.rotationHandling();
 
-	mat4f projection =
-		mat4f::makePerspective(45, (float)800 / (float)600, 0.1f, 100.0f);
+	mat4f projection = mat4f::makePerspective(
+		45, (float)this->width / (float)this->height, 0.1f, 100.0f);
 	mat4f view =
 		mat4f::lookAt(this->camera.pos, this->camera.pos + this->camera.target,
 					  this->camera.up);
@@ -226,7 +222,7 @@ void App::run() {
 
 	auto faces = model3d.getFaces();
 
-	Light light({0, 0, -3}, {1, 1, 1});
+	Light light({-5, 4, 12}, {1, 1, 1});
 
 	std::vector<float> vertices;
 	vertices.reserve(faces.size() * 3 * 11);
@@ -289,20 +285,51 @@ void App::run() {
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_FRONT);
-	glFrontFace(GL_CW);
+	glFrontFace(GL_CCW);
 
 	mat4f model = mat4f::makeIdentity();
 	float lastFrame = 0.0f;
 
-	this->shader.use();
+	glUseProgram(0);
+	double prevTime = 0.0;
+	double crntTime = 0.0;
+	double timeDiff;
+	// Keeps track of the amount of frames in timeDiff
+	unsigned int counter = 0;
+	this->skybox.init();
 	while (!glfwWindowShouldClose(this->window)) {
 
+		crntTime = glfwGetTime();
+		timeDiff = crntTime - prevTime;
+		counter++;
+
+		if (timeDiff >= 1.0 / 30.0) {
+			// Creates new title
+			std::string FPS = std::to_string((1.0 / timeDiff) * counter);
+			std::string ms = std::to_string((timeDiff / counter) * 1000);
+			std::string newTitle = FPS + "FPS / " + ms + "ms";
+			glfwSetWindowTitle(window, newTitle.c_str());
+
+			// Resets times and counter
+			prevTime = crntTime;
+			counter = 0;
+
+			// Use this if you have disabled VSync
+			// camera.Inputs(window);
+		}
+		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		this->shader.use();
 		this->keyManager.updateKeysStates(window);
 		this->keyManager.executeActions();
 		this->computeRendering(lastFrame, model, light);
 
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+
+		glDepthFunc(GL_LEQUAL);
+		this->skybox.draw(this->camera, true, this->width, this->height);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
