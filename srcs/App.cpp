@@ -239,9 +239,9 @@ void App::run() {
 			vertices.push_back(f.texCoords[i].x);
 			vertices.push_back(f.texCoords[i].y);
 
-			vertices.push_back(f.normal.x);
-			vertices.push_back(f.normal.y);
-			vertices.push_back(f.normal.z);
+			vertices.push_back(f.normal[i].x);
+			vertices.push_back(f.normal[i].y);
+			vertices.push_back(f.normal[i].z);
 		}
 	}
 

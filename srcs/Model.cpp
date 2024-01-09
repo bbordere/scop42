@@ -80,7 +80,9 @@ Face Model::vertexOnly(std::vector<std::string> const &input, std::size_t v1,
 	vec3f dir = (res.vertices[2] - res.vertices[0])
 					.cross(res.vertices[1] - res.vertices[0]);
 
-	res.normal = dir / dir.len();
+	res.normal[0] = dir / dir.len();
+	res.normal[1] = dir / dir.len();
+	res.normal[2] = dir / dir.len();
 	res.color = this->colorsPalette[this->faces.size() % 4];
 
 	return (res);
@@ -104,7 +106,7 @@ Face Model::vertexTextureNormal(std::vector<std::string> const &input,
 		split(input[indices[i]], "/", tmp);
 		res.vertices[i] = getVertice(std::stoi(tmp[0]));
 		res.texCoords[i] = getTexCoord(std::stoi(tmp[1]));
-		res.normal = getNormal(std::stoi(tmp[2]));
+		res.normal[i] = getNormal(std::stoi(tmp[2]));
 		tmp.clear();
 	}
 	res.color = this->colorsPalette[this->faces.size() % 4];
