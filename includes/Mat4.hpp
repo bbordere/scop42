@@ -8,6 +8,7 @@
 template <class T>
 class Mat4 {
 	private:
+	public:
 		T data[16] = {T()};
 
 	public:
@@ -30,6 +31,23 @@ class Mat4 {
 			res.data[10] = -(far + near) / (far - near);
 			res.data[11] = -static_cast<T>(1);
 			res.data[14] = -(static_cast<T>(2) * far * near) / (far - near);
+			return (res);
+		}
+
+		static Mat4 makeOrthogonal(T left, T right, T bot, T top, T near,
+								   T far) {
+			Mat4 res;
+			Vector3<T> vec;
+			vec.x = static_cast<T>(-(right + left) / (right - left));
+			vec.y = static_cast<T>(-(top + bot) / (top - bot));
+			vec.z = static_cast<T>(-(far + near) / (far - near));
+			res.data[0] = static_cast<T>(2 / (right - left));
+			res.data[5] = static_cast<T>(2 / (top - bot));
+			res.data[10] = static_cast<T>(-2 / (far - near));
+			res.data[12] = vec.x;
+			res.data[13] = vec.y;
+			res.data[14] = vec.z;
+			res.data[15] = 1;
 			return (res);
 		}
 
@@ -143,6 +161,19 @@ class Mat4 {
 			this->data[13] = static_cast<T>(0);
 			this->data[14] = static_cast<T>(0);
 			this->data[15] = static_cast<T>(0);
+		}
+
+		Mat4 operator*(Mat4 const &other) {
+			Mat4 res;
+			for (int i = 0; i < 4; ++i) {
+				for (int j = 0; j < 4; ++j) {
+					for (int k = 0; k < 4; ++k) {
+						res.data[j * 4 + i] +=
+							this->data[k * 4 + i] * other.data[j * 4 + k];
+					}
+				}
+			}
+			return (res);
 		}
 };
 

@@ -1,11 +1,11 @@
 #include "Camera.hpp"
 
-Camera::Camera() {
+Camera::Camera(): startingPos({0.0f, 0.0f, 0.0f}) {
 	this->reset();
 }
 
 void Camera::reset() {
-	this->pos = vec3f(-5, 0, 0);
+	this->pos = startingPos;
 	this->target = vec3f(0, 0, -1);
 	this->up = vec3f(0, 1, 0);
 	this->rotation = vec3f(0, 0, 0);
@@ -24,4 +24,9 @@ void Camera::rotationHandling() {
 	this->up = vec3f::normalize(vec3f::cross(
 		vec3f::normalize(vec3f::cross(this->target, vec3f(0, 1, 0))),
 		this->target));
+}
+
+void Camera::setStartingPos(vec3f const &startPos) {
+	this->startingPos = startPos;
+	this->startingPos.x -= 5;
 }

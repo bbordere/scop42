@@ -9,8 +9,10 @@ class Camera {
 		vec3f target;
 		vec3f up;
 		vec3f rotation;
+		vec3f startingPos;
 
 		Camera();
 		void reset();
 		void rotationHandling();
+		void setStartingPos(vec3f const &startPos);
 };

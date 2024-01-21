@@ -17,6 +17,13 @@ class Vector3 {
 
 		Vector3(T x, T y, T z): x(x), y(y), z(z) {}
 
+		Vector3<T> &operator=(Vector3<T> const &assign) {
+			this->x = assign.x;
+			this->y = assign.y;
+			this->z = assign.z;
+			return (*this);
+		}
+
 		Vector3 operator+(Vector3 const &other) const {
 			return (Vector3(this->x + other.x, this->y + other.y,
 							this->z + other.z));
@@ -97,6 +104,16 @@ class Vector3 {
 		}
 };
 
+template <class T>
+bool operator==(Vector3<T> const &l, Vector3<T> const &r) {
+	return (l.x == r.x && l.y == r.y && l.z == r.z);
+}
+
+template <class T>
+bool operator!=(Vector3<T> const &l, Vector3<T> const &r) {
+	return (!(l == r));
+}
+
 template <typename T>
 std::ostream &operator<<(std::ostream &output, Vector3<T> const &vec) {
 	output << '(' << vec.x << ", " << vec.y << ", " << vec.z << ')';
@@ -114,6 +131,12 @@ class Vector2 {
 		Vector2(): x(T()), y(T()) {}
 
 		Vector2(T x, T y): x(x), y(y) {}
+
+		Vector2<T> &operator=(Vector2<T> const &assign) {
+			this->x = assign.x;
+			this->y = assign.y;
+			return (*this);
+		}
 
 		Vector2 operator+(Vector2 const &other) const {
 			return (Vector2(this->x + other.x, this->y + other.y));
@@ -147,6 +170,16 @@ class Vector2 {
 			return (std::sqrt((this->x * this->x) + (this->y * this->y)));
 		}
 };
+
+template <class T>
+bool operator==(Vector2<T> const &l, Vector2<T> const &r) {
+	return (l.x == r.x && l.y == r.y);
+}
+
+template <class T>
+bool operator!=(Vector2<T> const &l, Vector2<T> const &r) {
+	return (!(l == r));
+}
 
 template <typename T>
 std::ostream &operator<<(std::ostream &output, Vector2<T> const &vec) {

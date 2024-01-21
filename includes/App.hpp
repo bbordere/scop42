@@ -2,11 +2,13 @@
 
 #include "BmpImage.hpp"
 #include "Camera.hpp"
+#include "File3D.hpp"
 #include "KeyManager.hpp"
 #include "Light.hpp"
 #include "Mat4.hpp"
-#include "Model.hpp"
+#include "Object.hpp"
 #include "Shader.hpp"
+#include "ShadowMap.hpp"
 #include "SkyBox.hpp"
 #include "Vectors.hpp"
 #include <GLFW/glfw3.h>
@@ -20,15 +22,20 @@ class App {
 		Shader shader;
 		Camera camera;
 		KeyManager keyManager;
-		Model model3d;
+		File3D model3d;
 		SkyBox skybox;
+		ShadowMap shadowMap;
+		Shader chromeShader;
 
 		bool isSpacePressed;
 		bool isTextured = true;
 		bool isRotating = true;
+		bool isSkyboxed = true;
+		bool isChromed = false;
 		float delta = 0.0f;
 		float modelRotationAngle = 90.0f;
 		float blendingFActor = 0.0f;
+		int polygonMode = 0;
 
 		unsigned int width, height;
 
@@ -42,14 +49,15 @@ class App {
 	private:
 		void closeWindow();
 		void polygonModeHandling();
-		void texturingModeHandling();
-		void rotationHandling();
 		void moveCamera(DIRECTION dir, int factor);
 		void rotateCamera(DIRECTION dir, int factor);
 		void resetCamera();
 		void setupLight();
-		void setRenderUniforms(Light const &light, mat4f const &model,
-							   mat4f const &view, mat4f const &proj);
-		void computeRendering(float &lastFrame, mat4f &model,
-							  Light const &light);
+		void setRenderUniforms(Light const &light, mat4f const &view,
+							   mat4f const &proj);
+		void computeRendering(mat4f &model, Light const &light);
+		void computeShadowMap(Light const &light, Object const &object);
+		void fpsUpdate();
+		void viewDebugShadow();
+		void toggleBoolean(bool *val);
 };

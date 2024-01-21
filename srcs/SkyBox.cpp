@@ -54,9 +54,10 @@ void SkyBox::init() {
 }
 
 void SkyBox::draw(Camera const &camera, bool isRendered, uint width,
-				  uint height) {
+				  uint height, GLenum polygonMode) {
 	if (!isRendered)
 		return;
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glDepthFunc(GL_LEQUAL);
 	this->shader.use();
 	mat4f view = mat4f::makeIdentity();
@@ -78,4 +79,5 @@ void SkyBox::draw(Camera const &camera, bool isRendered, uint width,
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 	glDepthFunc(GL_LESS);
+	glPolygonMode(GL_FRONT_AND_BACK, polygonMode);
 }

@@ -23,5 +23,5 @@ class SkyBox {
 		SkyBox();
 		void init();
 		void draw(Camera const &camera, bool isRendered, uint width,
-				  uint height);
+				  uint height, GLenum polygonMode);
 };

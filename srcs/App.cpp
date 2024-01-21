@@ -8,6 +8,7 @@ void App::closeWindow() {
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+GLuint texture;
 
 void App::init(std::string const &path, std::string const &texturePath) {
 	if (!glfwInit()) {
@@ -40,11 +41,13 @@ void App::init(std::string const &path, std::string const &texturePath) {
 		PRESSED_ONCE);
 	this->keyManager.registerCallback(
 		GLFW_KEY_SPACE,
-		std::function<void()>{std::bind(&App::texturingModeHandling, this)},
+		std::function<void()>{
+			std::bind(&App::toggleBoolean, this, &this->isTextured)},
 		PRESSED_ONCE);
 	this->keyManager.registerCallback(
 		GLFW_KEY_R,
-		std::function<void()>{std::bind(&App::rotationHandling, this)},
+		std::function<void()>{
+			std::bind(&App::toggleBoolean, this, &this->isRotating)},
 		PRESSED_ONCE);
 	this->keyManager.registerCallback(
 		GLFW_KEY_W,
@@ -89,8 +92,20 @@ void App::init(std::string const &path, std::string const &texturePath) {
 	this->keyManager.registerCallback(
 		GLFW_KEY_F, std::function<void()>{std::bind(&App::resetCamera, this)},
 		PRESSED_ONCE);
+	this->keyManager.registerCallback(
+		GLFW_KEY_G,
+		std::function<void()>{
+			std::bind(&App::toggleBoolean, this, &this->isSkyboxed)},
+		PRESSED_ONCE);
+	this->keyManager.registerCallback(
+		GLFW_KEY_C,
+		std::function<void()>{
+			std::bind(&App::toggleBoolean, this, &this->isChromed)},
+		PRESSED_ONCE);
 
 	model3d.load(path);
+	this->camera.setStartingPos(model3d.getCenter());
+	this->camera.reset();
 	int width, height, nrChannels;
 	stbi_set_flip_vertically_on_load(true);
 	unsigned char *data =
@@ -102,15 +117,13 @@ void App::init(std::string const &path, std::string const &texturePath) {
 	// width = image.getInfoHeader().imgWidth;
 	// height = image.getInfoHeader().imgHeight;
 
-	GLuint texture;
 	glGenTextures(1, &texture);
 
-	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
-	// GL_MIRRORED_REPEAT); glTexParameteri(GL_TEXTURE_2D,
-	// GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
 
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
@@ -118,6 +131,11 @@ void App::init(std::string const &path, std::string const &texturePath) {
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 	glBindTexture(GL_TEXTURE_2D, texture);
+	this->chromeShader = Shader("shaders/chrome.frag", "shaders/chrome.vert");
+}
+
+void App::toggleBoolean(bool *val) {
+	*val = !*val;
 }
 
 void App::rotateCamera(DIRECTION dir, int factor) {
@@ -139,21 +157,12 @@ void App::rotateCamera(DIRECTION dir, int factor) {
 }
 
 void App::polygonModeHandling() {
-	static int mode = 0;
-	mode = (++mode) % 3;
-	glPolygonMode(GL_FRONT_AND_BACK, this->modes[mode]);
+	this->polygonMode = (++this->polygonMode) % 3;
+	glPolygonMode(GL_FRONT_AND_BACK, this->modes[this->polygonMode]);
 }
 
 void App::resetCamera() {
 	this->camera.reset();
-}
-
-void App::texturingModeHandling() {
-	this->isTextured = !this->isTextured;
-}
-
-void App::rotationHandling() {
-	this->isRotating = !this->isRotating;
 }
 
 void App::moveCamera(DIRECTION dir, int factor) {
@@ -176,36 +185,20 @@ void App::moveCamera(DIRECTION dir, int factor) {
 	}
 }
 
-void App::setRenderUniforms(Light const &light, mat4f const &model,
-							mat4f const &view, mat4f const &proj) {
+void App::setRenderUniforms(Light const &light, mat4f const &view,
+							mat4f const &proj) {
 	this->shader.setUniform("lightPos", light.pos);
 	this->shader.setUniform("lightAmbientIntensity", light.ambientIntensity);
 	this->shader.setUniform("lightDiffuseIntensity", light.diffuseIntensity);
 	this->shader.setUniform("lightSpecularIntensity", light.specularIntensity);
-	this->shader.setUniform("model", model);
 	this->shader.setUniform("view", view);
 	this->shader.setUniform("projection", proj);
 	this->shader.setUniform("camPos", this->camera.pos);
 }
 
-void App::computeRendering(float &lastFrame, mat4f &model, Light const &light) {
-	float currentFrame = glfwGetTime();
-
-	this->delta = currentFrame - lastFrame;
-	lastFrame = currentFrame;
-
-	if (this->isRotating)
-		model.rotate(15 * this->delta, vec3f(0.0f, 2.0f, 0.0f));
+void App::computeRendering(mat4f &model, Light const &light) {
 
 	this->camera.rotationHandling();
-
-	mat4f projection = mat4f::makePerspective(
-		45, (float)this->width / (float)this->height, 0.1f, 100.0f);
-	mat4f view =
-		mat4f::lookAt(this->camera.pos, this->camera.pos + this->camera.target,
-					  this->camera.up);
-
-	this->setRenderUniforms(light, model, view, projection);
 
 	this->blendingFActor += (!isTextured * 0.001f) + (isTextured * -0.001f);
 
@@ -218,77 +211,115 @@ void App::computeRendering(float &lastFrame, mat4f &model, Light const &light) {
 	this->shader.setUniform("factor", this->blendingFActor);
 }
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+Object planeObj;
+
+mat4f conv(vec3f const &lightPos) {
+	glm::mat4 lightProjection, lightView;
+	glm::mat4 lightSpaceMatrix;
+	float near_plane = 1.0f, far_plane = 7.5f;
+	// lightProjection = glm::perspective(glm::radians(45.0f),
+	// (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, near_plane, far_plane);
+	// // note that if you use a perspective projection matrix you'll have to
+	// change the light position as the current light position isn't enough to
+	// reflect the whole scene
+	lightProjection =
+		glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+	lightView = glm::lookAt({lightPos.x, lightPos.y, lightPos.z},
+							glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+	lightSpaceMatrix = lightProjection * lightView;
+
+	float const *pSource = (float const *)glm::value_ptr(lightSpaceMatrix);
+	mat4f res;
+	for (int i = 0; i < 16; ++i)
+		res.data[i] = pSource[i];
+	return (res);
+}
+
+void App::computeShadowMap(Light const &light, Object const &object) {
+	// mat4f lightProj = conv(light.pos);
+
+	mat4f lightProj, lightView, lightSpace;
+	float near = 1.0f, far = 7.5f;
+	lightProj = mat4f::makeOrthogonal(-10, 10, -10, 10, near, far);
+	lightView = mat4f::lookAt(light.pos, {0, 0, 0}, {0, 1, 0});
+	lightSpace = lightProj * lightView;
+
+	shadowMap.getShader().use();
+	shadowMap.getShader().setUniform("lightProj", lightSpace);
+	glViewport(0, 0, 4096, 4096);
+	glBindFramebuffer(GL_FRAMEBUFFER, shadowMap.getFbo());
+	glClear(GL_DEPTH_BUFFER_BIT);
+	object.draw(shadowMap.getShader());
+	// planeObj.draw(shadowMap.getShader());
+}
+
+void App::fpsUpdate() {
+	static float lastFrame = 0.0f;
+	static float prevUpdate = glfwGetTime();
+	static int frame = 0;
+	float currentFrame = glfwGetTime();
+	this->delta = currentFrame - lastFrame;
+	lastFrame = currentFrame;
+	if (currentFrame - prevUpdate >= 1.0) {
+		std::string FPS =
+			"scop - " + std::to_string((int)((1000 / this->delta) / 1000));
+		FPS += " FPS";
+		glfwSetWindowTitle(window, FPS.c_str());
+		frame = 0;
+		prevUpdate = currentFrame;
+	}
+}
+
+void App::viewDebugShadow() {
+	unsigned int quadVAO = 0;
+	unsigned int quadVBO;
+	Shader debug("shaders/debug.frag", "shaders/debug.vert");
+	debug.use();
+	debug.setUniform("depthMap", 1);
+	if (quadVAO == 0) {
+		// clang-format off
+		float quadVertices[] = {
+			// positions        // texture Coords
+			-1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 
+			-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+			1.0f,  1.0f, 0.0f, 1.0f, 1.0f, 
+			1.0f,  -1.0f, 0.0f, 1.0f, 0.0f,
+		};
+		// clang-format on
+
+		glGenVertexArrays(1, &quadVAO);
+		glGenBuffers(1, &quadVBO);
+		glBindVertexArray(quadVAO);
+		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices,
+					 GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+							  (void *)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+							  (void *)(3 * sizeof(float)));
+	}
+	glBindVertexArray(quadVAO);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	glBindVertexArray(0);
+}
+
 void App::run() {
 
-	auto faces = model3d.getFaces();
+	Light light({-5, 4, 3}, {1, 1, 1});
+	Object object;
+	object.configFromFile(this->model3d);
 
-	Light light({-5, 4, 12}, {1, 1, 1});
-
-	std::vector<float> vertices;
-	vertices.reserve(faces.size() * 3 * 11);
-	for (auto f : faces) {
-		for (int i = 0; i < 3; ++i) {
-			vertices.push_back(f.vertices[i].x);
-			vertices.push_back(f.vertices[i].y);
-			vertices.push_back(f.vertices[i].z);
-
-			vertices.push_back(f.color.r);
-			vertices.push_back(f.color.g);
-			vertices.push_back(f.color.b);
-
-			vertices.push_back(f.texCoords[i].x);
-			vertices.push_back(f.texCoords[i].y);
-
-			vertices.push_back(f.normal[i].x);
-			vertices.push_back(f.normal[i].y);
-			vertices.push_back(f.normal[i].z);
-		}
-	}
-
-	// Vertex Array Object (VAO) and Vertex Buffer Object (VBO)
-	GLuint VAO, VBO;
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	// Bind VAO and VBO
-	glBindVertexArray(VAO);
-
-	// Copy vertex data to VBO
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float),
-				 vertices.data(), GL_STATIC_DRAW);
-
-	// glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices,
-	// GL_STATIC_DRAW);
-
-	// Set vertex attribute pointers
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, (11 * sizeof(float)),
-						  (void *)0);
-	glEnableVertexAttribArray(0);
-
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, (11 * sizeof(float)),
-						  (void *)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, (11 * sizeof(float)),
-						  (void *)(6 * sizeof(float)));
-	glEnableVertexAttribArray(2);
-
-	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, (11 * sizeof(float)),
-						  (void *)(8 * sizeof(float)));
-	glEnableVertexAttribArray(3);
-
-	glBindVertexArray(VAO);
-
-	// Unbind VAO and VBO
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_FRONT);
-	glFrontFace(GL_CCW);
+	// glEnable(GL_CULL_FACE);
+	// glCullFace(GL_FRONT);
+	// glFrontFace(GL_CCW);
 
 	mat4f model = mat4f::makeIdentity();
-	float lastFrame = 0.0f;
 
 	glUseProgram(0);
 	double prevTime = 0.0;
@@ -296,40 +327,74 @@ void App::run() {
 	double timeDiff;
 	// Keeps track of the amount of frames in timeDiff
 	unsigned int counter = 0;
+	this->shadowMap.init();
 	this->skybox.init();
+
+	// File3D plane;
+	// plane.load("models/plane.obj");
+	// planeObj.configFromFile(plane);
+	// planeObj.translate({0, -2, 0});
+
 	while (!glfwWindowShouldClose(this->window)) {
-
-		crntTime = glfwGetTime();
-		timeDiff = crntTime - prevTime;
-		counter++;
-
-		if (timeDiff >= 1.0 / 30.0) {
-			// Creates new title
-			std::string FPS = std::to_string((1.0 / timeDiff) * counter);
-			std::string ms = std::to_string((timeDiff / counter) * 1000);
-			std::string newTitle = FPS + "FPS / " + ms + "ms";
-			glfwSetWindowTitle(window, newTitle.c_str());
-
-			// Resets times and counter
-			prevTime = crntTime;
-			counter = 0;
-
-			// Use this if you have disabled VSync
-			// camera.Inputs(window);
-		}
-		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		this->shader.use();
+		this->fpsUpdate();
 		this->keyManager.updateKeysStates(window);
 		this->keyManager.executeActions();
-		this->computeRendering(lastFrame, model, light);
 
-		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+		glClearColor(0.07f, 0.08f, 0.13f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glDepthFunc(GL_LEQUAL);
-		this->skybox.draw(this->camera, true, this->width, this->height);
+		mat4f lightProj, lightView, lightSpace;
+		float near = 1.0f, far = 7.5f;
+		lightProj = mat4f::makeOrthogonal(-10, 10, -10, 10, near, far);
+		lightView = mat4f::lookAt(light.pos, {0, 0, 0}, {0, 1, 0});
+		lightSpace = lightProj * lightView;
+
+		if (this->isRotating)
+			object.rotate(15 * this->delta, vec3f(0, 1, 0), object.getCenter());
+
+		this->computeShadowMap(light, object);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glViewport(0, 0, 1280, 720);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		this->shader.use();
+
+		mat4f projection = mat4f::makePerspective(
+			45, (float)this->width / (float)this->height, 0.1f, 100.0f);
+		mat4f view = mat4f::lookAt(this->camera.pos,
+								   this->camera.pos + this->camera.target,
+								   this->camera.up);
+
+		// mat4f lightProj = conv(light.pos);
+		this->setRenderUniforms(light, view, projection);
+		this->computeRendering(model, light);
+		this->shader.setUniform("lightSpaceMatrix", lightSpace);
+		this->shader.setUniform("shadowMap", 1);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, shadowMap.getTexture());
+		// object.draw(this->shader);
+		planeObj.draw(this->shader);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glViewport(0, 0, 1280, 720);
+
+		if (this->isChromed) {
+			this->chromeShader.use();
+			this->chromeShader.setUniform("view", view);
+			this->chromeShader.setUniform("cameraPos", this->camera.pos);
+			this->chromeShader.setUniform("projection", projection);
+			object.draw(this->chromeShader);
+		}
+		else
+			object.draw(this->shader);
+
+		// this->viewDebugShadow();
+		// glDepthFunc(GL_LEQUAL);
+		this->skybox.draw(this->camera, this->isSkyboxed, this->width,
+						  this->height, this->modes[this->polygonMode]);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
