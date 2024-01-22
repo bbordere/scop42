@@ -27,10 +27,16 @@ void App::init(std::string const &path, std::string const &texturePath) {
 		throw std::runtime_error("Cant init Window !");
 	}
 	glfwMakeContextCurrent(window);
-	if (glewInit() != GLEW_OK) {
+
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 		glfwTerminate();
-		throw std::runtime_error("Cant init GLEW !");
+		throw std::runtime_error("Cant init GLAD !");
 	}
+
+	// if (glewInit() != GLEW_OK) {
+	// 	glfwTerminate();
+	// 	throw std::runtime_error("Cant init GLEW !");
+	// }
 	this->shader = Shader("shaders/fragment.glsl", "shaders/vertex.glsl");
 	this->keyManager.registerCallback(
 		GLFW_KEY_ESCAPE,

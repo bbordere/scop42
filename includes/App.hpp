@@ -1,5 +1,8 @@
 #pragma once
 
+#include "glad/glad.h"
+#include <GLFW/glfw3.h>
+
 #include "BmpImage.hpp"
 #include "Camera.hpp"
 #include "File3D.hpp"
@@ -11,7 +14,6 @@
 #include "ShadowMap.hpp"
 #include "SkyBox.hpp"
 #include "Vectors.hpp"
-#include <GLFW/glfw3.h>
 #include <cmath>
 #include <exception>
 #include <iostream>

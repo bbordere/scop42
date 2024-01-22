@@ -1,7 +1,8 @@
 #pragma once
 #include "Mat4.hpp"
 #include "Vectors.hpp"
-#include <GL/glew.h>
+// #include <GL/glew.h>
+#include "glad/glad.h"
 #include <GLFW/glfw3.h>
 #include <fstream>
 #include <sstream>
