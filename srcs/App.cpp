@@ -8,9 +8,19 @@ void App::closeWindow() {
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+
 GLuint texture;
 
 void App::init(std::string const &path, std::string const &texturePath) {
+
+	model3d.load(path);
+	this->camera.setStartingPos(model3d.getCenter());
+	this->camera.reset();
+	int width, height, nrChannels;
+	stbi_set_flip_vertically_on_load(true);
+	unsigned char *data =
+		stbi_load(texturePath.c_str(), &width, &height, &nrChannels, 0);
+
 	if (!glfwInit()) {
 		throw std::runtime_error("Cant init OpenGL !");
 	}
@@ -18,20 +28,26 @@ void App::init(std::string const &path, std::string const &texturePath) {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	this->width = 1280;
-	this->height = 720;
+	glfwWindowHint(GLFW_SAMPLES, 4);
 
-	this->window =
-		glfwCreateWindow(this->width, this->height, "scop", NULL, NULL);
+	this->resizeVec = {1280, 720};
+
+	this->window = glfwCreateWindow(this->resizeVec.x, this->resizeVec.y,
+									"scop", NULL, NULL);
 	if (!window) {
 		throw std::runtime_error("Cant init Window !");
 	}
 	glfwMakeContextCurrent(window);
+	glfwSwapInterval(0);
+
+	glfwSetFramebufferSizeCallback(window, resizeHandler);
+	glfwSetWindowUserPointer(window, &this->resizeVec);
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 		glfwTerminate();
 		throw std::runtime_error("Cant init GLAD !");
 	}
+	glEnable(GL_MULTISAMPLE);
 
 	// if (glewInit() != GLEW_OK) {
 	// 	glfwTerminate();
@@ -109,14 +125,6 @@ void App::init(std::string const &path, std::string const &texturePath) {
 			std::bind(&App::toggleBoolean, this, &this->isChromed)},
 		PRESSED_ONCE);
 
-	model3d.load(path);
-	this->camera.setStartingPos(model3d.getCenter());
-	this->camera.reset();
-	int width, height, nrChannels;
-	stbi_set_flip_vertically_on_load(true);
-	unsigned char *data =
-		stbi_load(texturePath.c_str(), &width, &height, &nrChannels, 0);
-
 	// BmpImage image;
 	// image.extractData("res/texture.bmp");
 	// uint8_t *data = image.data.data();
@@ -125,8 +133,8 @@ void App::init(std::string const &path, std::string const &texturePath) {
 
 	glGenTextures(1, &texture);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
@@ -217,49 +225,45 @@ void App::computeRendering(mat4f &model, Light const &light) {
 	this->shader.setUniform("factor", this->blendingFActor);
 }
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+// #include <glm/glm.hpp>
+// #include <glm/gtc/matrix_transform.hpp>
+// #include <glm/gtc/type_ptr.hpp>
 Object planeObj;
 
-mat4f conv(vec3f const &lightPos) {
-	glm::mat4 lightProjection, lightView;
-	glm::mat4 lightSpaceMatrix;
-	float near_plane = 1.0f, far_plane = 7.5f;
-	// lightProjection = glm::perspective(glm::radians(45.0f),
-	// (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, near_plane, far_plane);
-	// // note that if you use a perspective projection matrix you'll have to
-	// change the light position as the current light position isn't enough to
-	// reflect the whole scene
-	lightProjection =
-		glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
-	lightView = glm::lookAt({lightPos.x, lightPos.y, lightPos.z},
-							glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
-	lightSpaceMatrix = lightProjection * lightView;
+// mat4f conv(vec3f const &lightPos) {
+// 	glm::mat4 lightProjection, lightView;
+// 	glm::mat4 lightSpaceMatrix;
+// 	float near_plane = 1.0f, far_plane = 7.5f;
+// 	// lightProjection = glm::perspective(glm::radians(45.0f),
+// 	// (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, near_plane, far_plane);
+// 	// // note that if you use a perspective projection matrix you'll have to
+// 	// change the light position as the current light position isn't enough to
+// 	// reflect the whole scene
+// 	lightProjection =
+// 		glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+// 	lightView = glm::lookAt({lightPos.x, lightPos.y, lightPos.z},
+// 							glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+// 	lightSpaceMatrix = lightProjection * lightView;
 
-	float const *pSource = (float const *)glm::value_ptr(lightSpaceMatrix);
-	mat4f res;
-	for (int i = 0; i < 16; ++i)
-		res.data[i] = pSource[i];
-	return (res);
-}
+// 	float const *pSource = (float const *)glm::value_ptr(lightSpaceMatrix);
+// 	mat4f res;
+// 	for (int i = 0; i < 16; ++i)
+// 		res.data[i] = pSource[i];
+// 	return (res);
+// }
 
 void App::computeShadowMap(Light const &light, Object const &object) {
 	// mat4f lightProj = conv(light.pos);
 
-	mat4f lightProj, lightView, lightSpace;
-	float near = 1.0f, far = 7.5f;
-	lightProj = mat4f::makeOrthogonal(-10, 10, -10, 10, near, far);
-	lightView = mat4f::lookAt(light.pos, {0, 0, 0}, {0, 1, 0});
-	lightSpace = lightProj * lightView;
-
 	shadowMap.getShader().use();
-	shadowMap.getShader().setUniform("lightProj", lightSpace);
-	glViewport(0, 0, 4096, 4096);
+	shadowMap.getShader().setUniform("lightProj", light.getSpace());
+	glViewport(0, 0, SHADOW_RES, SHADOW_RES);
 	glBindFramebuffer(GL_FRAMEBUFFER, shadowMap.getFbo());
 	glClear(GL_DEPTH_BUFFER_BIT);
+	// glCullFace(GL_BACK);
 	object.draw(shadowMap.getShader());
 	// planeObj.draw(shadowMap.getShader());
+	glCullFace(GL_FRONT);
 }
 
 void App::fpsUpdate() {
@@ -316,14 +320,17 @@ void App::viewDebugShadow() {
 
 void App::run() {
 
-	Light light({-5, 4, 3}, {1, 1, 1});
+	Light light({-8, 6, 8}, {0.98, 0.92, 0.96});
+	light.initMatrixes();
+
 	Object object;
 	object.configFromFile(this->model3d);
 
 	glEnable(GL_DEPTH_TEST);
+
 	// glEnable(GL_CULL_FACE);
-	// glCullFace(GL_FRONT);
-	// glFrontFace(GL_CCW);
+	// glCullFace(GL_BACK);
+	// glFrontFace(GL_CW);
 
 	mat4f model = mat4f::makeIdentity();
 
@@ -331,15 +338,14 @@ void App::run() {
 	double prevTime = 0.0;
 	double crntTime = 0.0;
 	double timeDiff;
-	// Keeps track of the amount of frames in timeDiff
 	unsigned int counter = 0;
 	this->shadowMap.init();
 	this->skybox.init();
 
-	// File3D plane;
-	// plane.load("models/plane.obj");
-	// planeObj.configFromFile(plane);
-	// planeObj.translate({0, -2, 0});
+	File3D plane;
+	plane.load("models/plane.obj");
+	planeObj.configFromFile(plane);
+	planeObj.translate({0, 0, 0});
 
 	while (!glfwWindowShouldClose(this->window)) {
 		this->fpsUpdate();
@@ -349,24 +355,19 @@ void App::run() {
 		glClearColor(0.07f, 0.08f, 0.13f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		mat4f lightProj, lightView, lightSpace;
-		float near = 1.0f, far = 7.5f;
-		lightProj = mat4f::makeOrthogonal(-10, 10, -10, 10, near, far);
-		lightView = mat4f::lookAt(light.pos, {0, 0, 0}, {0, 1, 0});
-		lightSpace = lightProj * lightView;
-
 		if (this->isRotating)
 			object.rotate(15 * this->delta, vec3f(0, 1, 0), object.getCenter());
 
 		this->computeShadowMap(light, object);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glViewport(0, 0, 1280, 720);
+		glViewport(0, 0, this->resizeVec.x, this->resizeVec.y);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		this->shader.use();
 
 		mat4f projection = mat4f::makePerspective(
-			45, (float)this->width / (float)this->height, 0.1f, 100.0f);
+			45.0f, (float)this->resizeVec.x / (float)this->resizeVec.y, 0.1f,
+			100.0f);
 		mat4f view = mat4f::lookAt(this->camera.pos,
 								   this->camera.pos + this->camera.target,
 								   this->camera.up);
@@ -374,7 +375,7 @@ void App::run() {
 		// mat4f lightProj = conv(light.pos);
 		this->setRenderUniforms(light, view, projection);
 		this->computeRendering(model, light);
-		this->shader.setUniform("lightSpaceMatrix", lightSpace);
+		this->shader.setUniform("lightSpaceMatrix", light.getSpace());
 		this->shader.setUniform("shadowMap", 1);
 
 		glActiveTexture(GL_TEXTURE0);
@@ -385,7 +386,7 @@ void App::run() {
 		planeObj.draw(this->shader);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glViewport(0, 0, 1280, 720);
+		glViewport(0, 0, this->resizeVec.x, this->resizeVec.y);
 
 		if (this->isChromed) {
 			this->chromeShader.use();
@@ -399,8 +400,8 @@ void App::run() {
 
 		// this->viewDebugShadow();
 		// glDepthFunc(GL_LEQUAL);
-		this->skybox.draw(this->camera, this->isSkyboxed, this->width,
-						  this->height, this->modes[this->polygonMode]);
+		this->skybox.draw(this->camera, this->isSkyboxed, this->resizeVec.x,
+						  this->resizeVec.y, this->modes[this->polygonMode]);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

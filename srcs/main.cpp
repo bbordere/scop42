@@ -2,9 +2,10 @@
 // #include "BmpImage.hpp"
 // #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+
+// #include <glm/glm.hpp>
+// #include <glm/gtc/matrix_transform.hpp>
+// #include <glm/gtc/type_ptr.hpp>
 int main(int ac, char **av) {
 	std::string path = "models/cube.obj";
 	std::string texture = "res/nyan.bmp";

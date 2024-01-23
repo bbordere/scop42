@@ -15,7 +15,7 @@ FILES = $(SRCS_DIR)main.cpp $(SRCS_DIR)BmpImage.cpp $(SRCS_DIR)App.cpp\
 		$(SRCS_DIR)ShadowMap.cpp
 
 OBJS = $(patsubst $(SRCS_DIR)%.cpp, $(OBJ_DIR)%.o, $(FILES))
-DEPS = $(patsubst $(SRC_DIR)%.cpp, $(DEP_DIR)%.d, $(FILES))
+DEPS = $(patsubst $(SRC_DIR)%.cpp, $(DEP_DIR)%.d, $(notdir $(FILES)))
 
 $(OBJ_DIR)%.o: $(SRCS_DIR)%.cpp
 	@mkdir -p $(OBJ_DIR) $(DEP_DIR)
@@ -23,13 +23,15 @@ $(OBJ_DIR)%.o: $(SRCS_DIR)%.cpp
 
 NAME = scop
 
-all: $(NAME)
+all: glad_lib $(NAME)
 
-$(NAME): $(OBJS) glad_lib
-	$(CXX) $(OBJS) $(CXXFLAGS) $(OBJ_DIR)/glad.o -lglfw -ldl -lGL -lGLEW -o $(NAME) -lGLU
+$(NAME): $(OBJS)
+	$(CXX) $(OBJS) $(CXXFLAGS) $(OBJ_DIR)glad.o -lglfw -ldl -lGL -o $(NAME) -lGLU
 
 glad_lib:
-	$(CC) external/glad/glad.c $(CFLAGS) -c -o $(OBJ_DIR)/glad.o
+	@mkdir -p $(OBJ_DIR)
+	$(CC) external/glad/glad.c $(CFLAGS) -c -o $(OBJ_DIR)glad.o
+
 
 clean:
 	rm -rf $(OBJ_DIR) $(DEP_DIR)
@@ -39,6 +41,6 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re
-
 -include $(DEPS)
+
+.PHONY: all clean fclean re glad_lib

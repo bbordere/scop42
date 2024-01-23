@@ -14,6 +14,7 @@
 #include "ShadowMap.hpp"
 #include "SkyBox.hpp"
 #include "Vectors.hpp"
+
 #include <cmath>
 #include <exception>
 #include <iostream>
@@ -40,6 +41,7 @@ class App {
 		int polygonMode = 0;
 
 		unsigned int width, height;
+		vec2u resizeVec;
 
 		GLenum const modes[3] = {GL_FILL, GL_LINE, GL_POINT};
 
@@ -47,6 +49,7 @@ class App {
 		App();
 		void init(std::string const &path, std::string const &texture);
 		void run();
+		void resizeWindow(GLFWwindow *window, int width, int height);
 
 	private:
 		void closeWindow();

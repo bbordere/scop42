@@ -40,3 +40,8 @@ void split(std::string str, std::string const &charset,
 float degToRad(float deg) {
 	return ((deg * M_PI) / 180);
 }
+
+void resizeHandler(GLFWwindow *window, int w, int h) {
+	vec2u *ptr = reinterpret_cast<vec2u *>(glfwGetWindowUserPointer(window));
+	*ptr = {static_cast<unsigned int>(w), static_cast<unsigned int>(h)};
+};

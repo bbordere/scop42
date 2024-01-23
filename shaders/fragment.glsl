@@ -31,7 +31,6 @@ float shadowCalc(float dotLight){
 		for (int y = -1; y <= 1; ++y){
 			float depth = texture(shadowMap, pos.xy + vec2(x, y) * texelSize).r;
 			shadow += (depth + bias) < pos.z ? 0.0 : 1.0;
-
 		}
 	}
 	return (shadow / 9.0);

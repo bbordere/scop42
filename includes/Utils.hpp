@@ -1,5 +1,8 @@
 #pragma once
+
 #include "Vectors.hpp"
+#include "glad/glad.h"
+#include <GLFW/glfw3.h>
 #include <cmath>
 #include <sstream>
 #include <string>
@@ -28,5 +31,6 @@ void split(std::string str, std::string const &delimiter,
 		   std::vector<std::string> &vector);
 
 float degToRad(float deg);
+void resizeHandler(GLFWwindow *window, int w, int h);
 
 // clang-format on
