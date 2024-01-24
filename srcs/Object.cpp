@@ -52,7 +52,7 @@ void Object::configFromFile(File3D const &file) {
 void Object::draw(Shader const &shader) const {
 	shader.setUniform("model", this->model);
 	glBindVertexArray(this->vao);
-	glDrawArrays(GL_TRIANGLES, 0, this->vertices.size());
+	glDrawArrays(GL_TRIANGLES, 0, vertices.size());
 	glBindVertexArray(0);
 }
 
@@ -68,4 +68,11 @@ vec3f const &Object::getCenter() const {
 
 void Object::translate(vec3f const &axis) {
 	this->model.translate(axis);
+}
+
+void Object::scale(vec3f const &scale) {
+	this->model.scale(scale);
+	this->center.x /= (1 / scale.x);
+	this->center.y /= (1 / scale.y);
+	this->center.z /= (1 / scale.z);
 }

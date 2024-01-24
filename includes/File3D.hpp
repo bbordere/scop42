@@ -17,6 +17,7 @@ class File3D {
 		std::vector<vec3f> normals;
 		std::vector<vec2f> texCoords;
 		vec3f center;
+		vec3f boundVector;
 
 		t_color const colorsPalette[4] = {
 			{0.3f, 0.3f, 0.3f},
@@ -29,6 +30,7 @@ class File3D {
 		void load(std::string const &path);
 		std::vector<Face> const &getFaces() const;
 		vec3f const &getCenter() const;
+		vec3f const &getBoundVec() const;
 
 	private:
 		void parseFace(std::vector<std::string> const &input);

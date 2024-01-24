@@ -14,7 +14,7 @@ GLuint texture;
 void App::init(std::string const &path, std::string const &texturePath) {
 
 	model3d.load(path);
-	this->camera.setStartingPos(model3d.getCenter());
+	this->camera.setStartingPos(model3d.getCenter(), model3d.getBoundVec());
 	this->camera.reset();
 	int width, height, nrChannels;
 	stbi_set_flip_vertically_on_load(true);
@@ -230,28 +230,6 @@ void App::computeRendering(mat4f &model, Light const &light) {
 // #include <glm/gtc/type_ptr.hpp>
 Object planeObj;
 
-// mat4f conv(vec3f const &lightPos) {
-// 	glm::mat4 lightProjection, lightView;
-// 	glm::mat4 lightSpaceMatrix;
-// 	float near_plane = 1.0f, far_plane = 7.5f;
-// 	// lightProjection = glm::perspective(glm::radians(45.0f),
-// 	// (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, near_plane, far_plane);
-// 	// // note that if you use a perspective projection matrix you'll have to
-// 	// change the light position as the current light position isn't enough to
-// 	// reflect the whole scene
-// 	lightProjection =
-// 		glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
-// 	lightView = glm::lookAt({lightPos.x, lightPos.y, lightPos.z},
-// 							glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
-// 	lightSpaceMatrix = lightProjection * lightView;
-
-// 	float const *pSource = (float const *)glm::value_ptr(lightSpaceMatrix);
-// 	mat4f res;
-// 	for (int i = 0; i < 16; ++i)
-// 		res.data[i] = pSource[i];
-// 	return (res);
-// }
-
 void App::computeShadowMap(Light const &light, Object const &object) {
 	// mat4f lightProj = conv(light.pos);
 
@@ -326,6 +304,10 @@ void App::run() {
 	Object object;
 	object.configFromFile(this->model3d);
 
+	// object.scale({0.5, 0.5, 0.5});
+	// std::cout << object.getCenter() << '\n';
+	// this->camera.startingPos = object.getCenter();
+
 	glEnable(GL_DEPTH_TEST);
 
 	// glEnable(GL_CULL_FACE);
@@ -343,9 +325,9 @@ void App::run() {
 	this->skybox.init();
 
 	File3D plane;
-	plane.load("models/plane.obj");
-	planeObj.configFromFile(plane);
-	planeObj.translate({0, 0, 0});
+	// plane.load("models/plane.obj");
+	// planeObj.configFromFile(plane);
+	// planeObj.translate({0, 0, 0});
 
 	while (!glfwWindowShouldClose(this->window)) {
 		this->fpsUpdate();
@@ -367,7 +349,7 @@ void App::run() {
 
 		mat4f projection = mat4f::makePerspective(
 			45.0f, (float)this->resizeVec.x / (float)this->resizeVec.y, 0.1f,
-			100.0f);
+			250.0f);
 		mat4f view = mat4f::lookAt(this->camera.pos,
 								   this->camera.pos + this->camera.target,
 								   this->camera.up);
@@ -383,7 +365,7 @@ void App::run() {
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, shadowMap.getTexture());
 		// object.draw(this->shader);
-		planeObj.draw(this->shader);
+		// planeObj.draw(this->shader);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glViewport(0, 0, this->resizeVec.x, this->resizeVec.y);

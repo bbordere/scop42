@@ -169,6 +169,11 @@ class Vector2 {
 		double len() const {
 			return (std::sqrt((this->x * this->x) + (this->y * this->y)));
 		}
+
+		Vector2 normalize() const {
+			double len = this->len();
+			return (Vector2(this->x / len, this->y / len));
+		}
 };
 
 template <class T>

@@ -23,4 +23,5 @@ class Object {
 		void rotate(float angle, vec3f const &axis, vec3f const &center);
 		vec3f const &getCenter() const;
 		void translate(vec3f const &axis);
+		void scale(vec3f const &scale);
 };

@@ -175,6 +175,12 @@ class Mat4 {
 			}
 			return (res);
 		}
+
+		void scale(vec3f const &scale) {
+			this->data[0] *= scale.x;
+			this->data[5] *= scale.y;
+			this->data[10] *= scale.z;
+		}
 };
 
 template <typename T>

@@ -14,5 +14,5 @@ class Camera {
 		Camera();
 		void reset();
 		void rotationHandling();
-		void setStartingPos(vec3f const &startPos);
+		void setStartingPos(vec3f const &startPos, vec3f const &boundVec);
 };
