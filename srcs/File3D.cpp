@@ -27,28 +27,24 @@ void File3D::load(std::string const &path) {
 		input.clear();
 	}
 	this->computeCenter();
-	float min[] = {std::numeric_limits<float>::max(),
-				   std::numeric_limits<float>::max()};
-	float max[] = {std::numeric_limits<float>::min(),
-				   std::numeric_limits<float>::min()};
-	for (std::size_t i = 0; i < this->vertices.size(); ++i) {
-		min[0] = std::min(this->vertices[i].x, min[0]);
-		min[1] = std::min(this->vertices[i].y, min[1]);
-		max[0] = std::max(this->vertices[i].x, max[0]);
-		max[1] = std::max(this->vertices[i].y, max[1]);
-	}
+}
 
-	float dX = 1 / (max[0] - min[0]);
-	float dY = 1 / (max[1] - min[1]);
-	for (auto f : this->faces) {
-		for (int i = 0; i < 3; ++i) {
-			// f.texCoords[i].x = (f.vertices[i].x - min[0]) * dX;
-			// f.texCoords[i].y = (f.vertices[i].y - min[1]) * dY;
-			std::cout << f.texCoords[i] << '\n';
-			std::cout << f.vertices[i] << '\n';
-		}
-		std::cout << '\n';
-	}
+void File3D::computeNormals(Face &face) {
+	vec3f dir = (face.vertices[2] - face.vertices[0])
+					.cross(face.vertices[1] - face.vertices[0]);
+
+	face.normals[0] = dir / dir.len();
+	face.normals[1] = dir / dir.len();
+	face.normals[2] = dir / dir.len();
+}
+
+void File3D::computeUV(Face &face) {
+	face.texCoords[0] =
+		vec2f(face.vertices[0].x * 0.5 + 0.5, face.vertices[0].y * 0.5 + 0.5);
+	face.texCoords[1] =
+		vec2f(face.vertices[1].x * 0.5 + 0.5, face.vertices[1].y * 0.5 + 0.5);
+	face.texCoords[2] =
+		vec2f(face.vertices[2].x * 0.5 + 0.5, face.vertices[2].y * 0.5 + 0.5);
 }
 
 void File3D::computeCenter() {
@@ -123,56 +119,9 @@ Face File3D::vertexOnly(std::vector<std::string> const &input, std::size_t v1,
 	res.vertices[1] = getVertice(std::stoi(input[v2]));
 	res.vertices[2] = getVertice(std::stoi(input[v3]));
 
-	// res.texCoords[0] = vec2f(res.vertices[0].x, res.vertices[0].y);
-	// res.texCoords[1] = vec2f(res.vertices[1].x, res.vertices[1].y);
-	// res.texCoords[2] = vec2f(res.vertices[2].x, res.vertices[2].y);
+	computeNormals(res);
+	computeUV(res);
 
-	res.texCoords[0] = vec2f(0, 1);
-	res.texCoords[1] = vec2f(1, 1);
-	res.texCoords[2] = vec2f(1, 0);
-
-	float min[] = {std::numeric_limits<float>::max(),
-				   std::numeric_limits<float>::max(),
-				   std::numeric_limits<float>::max()};
-	float max[] = {std::numeric_limits<float>::min(),
-				   std::numeric_limits<float>::min(),
-				   std::numeric_limits<float>::min()};
-	for (std::size_t i = 0; i < this->vertices.size(); ++i) {
-		min[0] = std::min(this->vertices[i].x, min[0]);
-		min[1] = std::min(this->vertices[i].y, min[1]);
-		min[2] = std::min(this->vertices[i].z, min[2]);
-		max[0] = std::max(this->vertices[i].x, max[0]);
-		max[1] = std::max(this->vertices[i].y, max[1]);
-		max[2] = std::max(this->vertices[i].z, max[2]);
-	}
-
-	float dX = 1 / (max[0] - min[0]);
-	float dY = 1 / (max[1] - min[1]);
-	res.texCoords[0] = vec2f((res.vertices[0].x - min[0]) * dX,
-							 (res.vertices[0].y - min[1]) * dY);
-
-	res.texCoords[1] = vec2f((res.vertices[1].x - min[0]) * dX,
-							 (res.vertices[1].y - min[1]) * dY);
-
-	res.texCoords[2] = vec2f((res.vertices[2].x - min[0]) * dX,
-							 (res.vertices[2].y - min[1]) * dY);
-
-	// res.texCoords[1].x = (res.vertices[1].x - min[0]) * dX;
-	// res.texCoords[1].y = (res.vertices[1].y - min[1]) * dY;
-
-	// res.texCoords[2].x = (res.vertices[2].x - min[0]) * dX;
-	// res.texCoords[2].y = (res.vertices[2].y - min[1]) * dY;
-
-	std::cout << res.texCoords[0] << '\n';
-	std::cout << res.texCoords[1] << '\n';
-	std::cout << res.texCoords[2] << '\n';
-
-	vec3f dir = (res.vertices[2] - res.vertices[0])
-					.cross(res.vertices[1] - res.vertices[0]);
-
-	res.normals[0] = dir / dir.len();
-	res.normals[1] = dir / dir.len();
-	res.normals[2] = dir / dir.len();
 	res.color = this->colorsPalette[this->faces.size() % 4];
 
 	return (res);
@@ -180,8 +129,17 @@ Face File3D::vertexOnly(std::vector<std::string> const &input, std::size_t v1,
 
 Face File3D::vertexTexture(std::vector<std::string> const &input,
 						   std::size_t v1, std::size_t v2, std::size_t v3) {
-	std::cout << "VERTEX TEXTURE\n";
 	Face res;
+
+	std::size_t indices[] = {v1, v2, v3};
+	std::vector<std::string> tmp;
+	for (std::size_t i = 0; i < 3; ++i) {
+		split(input[indices[i]], "/", tmp);
+		res.vertices[i] = getVertice(std::stoi(tmp[0]));
+		res.texCoords[i] = getTexCoord(std::stoi(tmp[1]));
+		tmp.clear();
+	}
+	res.color = this->colorsPalette[this->faces.size() % 4];
 	return (res);
 }
 
@@ -213,7 +171,7 @@ Face File3D::vertexNormal(std::vector<std::string> const &input, std::size_t v1,
 		split(input[indices[i]], "/", tmp);
 		res.vertices[i] = getVertice(std::stoi(tmp[0]));
 		res.normals[i] = getNormal(std::stoi(tmp[1]));
-		res.texCoords[i] = {0, 0};
+		computeUV(res);
 		tmp.clear();
 	}
 	res.color = this->colorsPalette[this->faces.size() % 4];

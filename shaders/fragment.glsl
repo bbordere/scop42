@@ -23,7 +23,7 @@ float shadowCalc(float dotLight){
 	if (pos.z > 1.0){
 		pos.z = 1.0;
 	}
-	float bias = max(0.05 * (1.0 - dotLight), 0.0005);
+	float bias = max(0.03 * (1.0 - dotLight), 0.0005);
 
 	float shadow = 0.0;
 	vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
@@ -55,4 +55,8 @@ vec4 getLight(vec4 color){
 void main() {
 	vec3 pixelColor = color;
 	FragColor = getLight(mix(texture(ourTexture, texCoord), vec4(color, 1.0), factor));
+	// vec3 i = normalize(fragPos);
+	// vec3 r = reflect(i, normalize(normal));
+	// FragColor = vec4(texture(ourTexture, i.xy));
+	// FragColor = getLight(mix(texture(ourTexture, i.xy), vec4(color, 1.0), factor));
 }

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Shader.hpp"
-#define SHADOW_RES 2048
+#define SHADOW_RES 8192
 
 class ShadowMap {
 	private:

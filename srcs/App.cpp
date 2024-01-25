@@ -49,10 +49,6 @@ void App::init(std::string const &path, std::string const &texturePath) {
 	}
 	glEnable(GL_MULTISAMPLE);
 
-	// if (glewInit() != GLEW_OK) {
-	// 	glfwTerminate();
-	// 	throw std::runtime_error("Cant init GLEW !");
-	// }
 	this->shader = Shader("shaders/fragment.glsl", "shaders/vertex.glsl");
 	this->keyManager.registerCallback(
 		GLFW_KEY_ESCAPE,
@@ -298,21 +294,21 @@ void App::viewDebugShadow() {
 
 void App::run() {
 
-	Light light({-8, 6, 8}, {0.98, 0.92, 0.96});
-	light.initMatrixes();
-
 	Object object;
 	object.configFromFile(this->model3d);
 
 	// object.scale({0.5, 0.5, 0.5});
+	std::cout << this->model3d.getBoundVec() << '\n';
+	Light light({-8, 6, 10}, {0.98, 0.92, 0.96});
+	light.initMatrixes();
 	// std::cout << object.getCenter() << '\n';
 	// this->camera.startingPos = object.getCenter();
 
 	glEnable(GL_DEPTH_TEST);
 
 	// glEnable(GL_CULL_FACE);
-	// glCullFace(GL_BACK);
-	// glFrontFace(GL_CW);
+	// glCullFace(GL_FRONT);
+	// glFrontFace(GL_CCW);
 
 	mat4f model = mat4f::makeIdentity();
 
@@ -328,6 +324,8 @@ void App::run() {
 	// plane.load("models/plane.obj");
 	// planeObj.configFromFile(plane);
 	// planeObj.translate({0, 0, 0});
+
+	this->camera.startingPos = light.pos;
 
 	while (!glfwWindowShouldClose(this->window)) {
 		this->fpsUpdate();

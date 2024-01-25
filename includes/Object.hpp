@@ -5,7 +5,6 @@
 #include "Shader.hpp"
 #include "Vectors.hpp"
 #include "glad/glad.h"
-// #include <GL/glew.h>
 #include <vector>
 
 class Object {

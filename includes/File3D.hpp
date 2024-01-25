@@ -56,4 +56,6 @@ class File3D {
 					  std::size_t v2, std::size_t v3);
 
 		void computeCenter();
+		void computeNormals(Face &face);
+		void computeUV(Face &face);
 };
