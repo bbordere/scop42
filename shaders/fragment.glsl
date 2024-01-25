@@ -5,6 +5,7 @@ in vec2 texCoord;
 in vec3 normal;
 in vec3 fragPos;
 in vec4 FragPosLight;
+in vec3 vPos;
 
 out vec4 FragColor;
 
@@ -52,9 +53,17 @@ vec4 getLight(vec4 color){
 	return (color * (ambient + (shadowCalc(dot(ligthDir, Normal)) * (diffuse + specular))));
 }
 
+#define	PI 3.14159265358979323846
+
+vec2 sphericalUv(vec3 pos)
+{
+	pos = normalize(pos);
+	return vec2(0.5 - atan(pos.z, pos.x) / (2.0 * PI), 0.5 - asin(pos.y) / PI);
+}
+
 void main() {
 	vec3 pixelColor = color;
-	FragColor = getLight(mix(texture(ourTexture, texCoord), vec4(color, 1.0), factor));
+	FragColor = getLight(mix(texture(ourTexture, sphericalUv(vPos)), vec4(color, 1.0), factor));
 	// vec3 i = normalize(fragPos);
 	// vec3 r = reflect(i, normalize(normal));
 	// FragColor = vec4(texture(ourTexture, i.xy));

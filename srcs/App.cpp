@@ -138,6 +138,7 @@ void App::init(std::string const &path, std::string const &texturePath) {
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
 				 GL_UNSIGNED_BYTE, data);
+
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 	glBindTexture(GL_TEXTURE_2D, texture);
@@ -298,7 +299,7 @@ void App::run() {
 	object.configFromFile(this->model3d);
 
 	// object.scale({0.5, 0.5, 0.5});
-	std::cout << this->model3d.getBoundVec() << '\n';
+	std::cout << this->model3d.getCenter() << '\n';
 	Light light({-8, 6, 10}, {0.98, 0.92, 0.96});
 	light.initMatrixes();
 	// std::cout << object.getCenter() << '\n';
