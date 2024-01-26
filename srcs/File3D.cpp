@@ -33,18 +33,44 @@ void File3D::computeNormals(Face &face) {
 	vec3f dir = (face.vertices[2] - face.vertices[0])
 					.cross(face.vertices[1] - face.vertices[0]);
 
-	face.normals[0] = dir / dir.len();
-	face.normals[1] = dir / dir.len();
-	face.normals[2] = dir / dir.len();
+	face.normals[0] = (dir / dir.len()) * -1;
+	face.normals[1] = (dir / dir.len()) * -1;
+	face.normals[2] = (dir / dir.len()) * -1;
 }
 
 void File3D::computeUV(Face &face) {
-	face.texCoords[0] =
-		vec2f(face.vertices[0].x * 0.5 + 0.5, face.vertices[0].y * 0.5 + 0.5);
-	face.texCoords[1] =
-		vec2f(face.vertices[1].x * 0.5 + 0.5, face.vertices[1].y * 0.5 + 0.5);
-	face.texCoords[2] =
-		vec2f(face.vertices[2].x * 0.5 + 0.5, face.vertices[2].y * 0.5 + 0.5);
+	// face.texCoords[0] =
+	// 	vec2f(face.vertices[0].x * 0.5 + 0.5, face.vertices[0].y * 0.5 + 0.5);
+	// face.texCoords[1] =
+	// 	vec2f(face.vertices[1].x * 0.5 + 0.5, face.vertices[1].y * 0.5 + 0.5);
+	// face.texCoords[2] =
+	// 	vec2f(face.vertices[2].x * 0.5 + 0.5, face.vertices[2].y * 0.5 + 0.5);
+
+	vec3f s1 = face.vertices[1] - face.vertices[0];
+	vec3f s2 = face.vertices[2] - face.vertices[1];
+	vec3f norm = vec3f::cross(s1, s2).normalize();
+	norm.x = std::abs(norm.x);
+	norm.y = std::abs(norm.y);
+	norm.z = std::abs(norm.z);
+
+	if (norm.x >= norm.z && norm.x >= norm.y) // x plane
+	{
+		face.texCoords[0] = vec2f(face.vertices[0].z, face.vertices[0].y);
+		face.texCoords[1] = vec2f(face.vertices[1].z, face.vertices[1].y);
+		face.texCoords[2] = vec2f(face.vertices[2].z, face.vertices[2].y);
+	}
+	else if (norm.z >= norm.x && norm.z >= norm.y) // z plane
+	{
+		face.texCoords[0] = vec2f(face.vertices[0].x, face.vertices[0].y);
+		face.texCoords[1] = vec2f(face.vertices[1].x, face.vertices[1].y);
+		face.texCoords[2] = vec2f(face.vertices[2].x, face.vertices[2].y);
+	}
+	else if (norm.y >= norm.x && norm.y >= norm.z) // y plane
+	{
+		face.texCoords[0] = vec2f(face.vertices[0].x, face.vertices[0].z);
+		face.texCoords[1] = vec2f(face.vertices[1].x, face.vertices[1].z);
+		face.texCoords[2] = vec2f(face.vertices[2].x, face.vertices[2].z);
+	}
 }
 
 void File3D::computeCenter() {
@@ -106,9 +132,9 @@ void File3D::parseFace(std::vector<std::string> const &input) {
 	if (len != 4 && len != 5)
 		throw std::runtime_error("Face format not handled !");
 
-	this->faces.push_back(makeFace(input, 3, 2, 1));
+	this->faces.push_back(makeFace(input, 1, 2, 3));
 	if (len == 5)
-		this->faces.push_back(makeFace(input, 1, 4, 3));
+		this->faces.push_back(makeFace(input, 1, 3, 4));
 }
 
 Face File3D::vertexOnly(std::vector<std::string> const &input, std::size_t v1,

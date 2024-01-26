@@ -3,8 +3,7 @@
 SkyBox::SkyBox() {}
 
 void SkyBox::init() {
-	this->shader =
-		Shader("shaders/skyboxFragment.glsl", "shaders/skyboxVertex.glsl");
+	this->shader = Shader("shaders/skybox.frag", "shaders/skybox.vert");
 	this->shader.use();
 	this->shader.setUniform("skybox", 0);
 	glGenVertexArrays(1, &this->vao);
@@ -57,6 +56,7 @@ void SkyBox::draw(Camera const &camera, bool isRendered, uint width,
 				  uint height, GLenum polygonMode) {
 	if (!isRendered)
 		return;
+	glCullFace(GL_FRONT);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glDepthFunc(GL_LEQUAL);
 	this->shader.use();
@@ -80,4 +80,5 @@ void SkyBox::draw(Camera const &camera, bool isRendered, uint width,
 	glBindVertexArray(0);
 	glDepthFunc(GL_LESS);
 	glPolygonMode(GL_FRONT_AND_BACK, polygonMode);
+	glCullFace(GL_BACK);
 }

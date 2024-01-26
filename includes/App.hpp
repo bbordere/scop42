@@ -65,4 +65,5 @@ class App {
 		void fpsUpdate();
 		void viewDebugShadow();
 		void toggleBoolean(bool *val);
+		void toggleUVMapping();
 };

@@ -10,6 +10,7 @@ out vec3 normal;
 out vec3 fragPos;
 out vec4 FragPosLight;
 out vec3 vPos;
+out vec3 vNormal;
 
 uniform mat4 model;
 uniform mat4 view;

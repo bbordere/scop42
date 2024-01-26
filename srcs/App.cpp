@@ -11,6 +11,13 @@ void App::closeWindow() {
 
 GLuint texture;
 
+void App::toggleUVMapping() {
+	static int mode = 0;
+	mode = (mode + 1) % 2;
+	this->shader.use();
+	this->shader.setUniform("uvMappingMode", static_cast<int>(mode));
+}
+
 void App::init(std::string const &path, std::string const &texturePath) {
 
 	model3d.load(path);
@@ -49,7 +56,7 @@ void App::init(std::string const &path, std::string const &texturePath) {
 	}
 	glEnable(GL_MULTISAMPLE);
 
-	this->shader = Shader("shaders/fragment.glsl", "shaders/vertex.glsl");
+	this->shader = Shader("shaders/default.frag", "shaders/default.vert");
 	this->keyManager.registerCallback(
 		GLFW_KEY_ESCAPE,
 		std::function<void()>{std::bind(&App::closeWindow, this)}, PRESSED);
@@ -120,6 +127,10 @@ void App::init(std::string const &path, std::string const &texturePath) {
 		std::function<void()>{
 			std::bind(&App::toggleBoolean, this, &this->isChromed)},
 		PRESSED_ONCE);
+	this->keyManager.registerCallback(
+		GLFW_KEY_U,
+		std::function<void()>{std::bind(&App::toggleUVMapping, this)},
+		PRESSED_ONCE);
 
 	// BmpImage image;
 	// image.extractData("res/texture.bmp");
@@ -128,12 +139,11 @@ void App::init(std::string const &path, std::string const &texturePath) {
 	// height = image.getInfoHeader().imgHeight;
 
 	glGenTextures(1, &texture);
-
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
@@ -141,7 +151,7 @@ void App::init(std::string const &path, std::string const &texturePath) {
 
 	glGenerateMipmap(GL_TEXTURE_2D);
 
-	glBindTexture(GL_TEXTURE_2D, texture);
+	// glBindTexture(GL_TEXTURE_2D, texture);
 	this->chromeShader = Shader("shaders/chrome.frag", "shaders/chrome.vert");
 }
 
@@ -230,15 +240,20 @@ Object planeObj;
 void App::computeShadowMap(Light const &light, Object const &object) {
 	// mat4f lightProj = conv(light.pos);
 
+	// glCullFace(GL_FRONT);
+	glDisable(GL_CULL_FACE);
+
 	shadowMap.getShader().use();
 	shadowMap.getShader().setUniform("lightProj", light.getSpace());
 	glViewport(0, 0, SHADOW_RES, SHADOW_RES);
 	glBindFramebuffer(GL_FRAMEBUFFER, shadowMap.getFbo());
 	glClear(GL_DEPTH_BUFFER_BIT);
-	// glCullFace(GL_BACK);
 	object.draw(shadowMap.getShader());
+
+	glEnable(GL_CULL_FACE);
+
+	// glCullFace(GL_BACK);
 	// planeObj.draw(shadowMap.getShader());
-	glCullFace(GL_FRONT);
 }
 
 void App::fpsUpdate() {
@@ -300,16 +315,15 @@ void App::run() {
 
 	// object.scale({0.5, 0.5, 0.5});
 	std::cout << this->model3d.getCenter() << '\n';
-	Light light({-8, 6, 10}, {0.98, 0.92, 0.96});
+	// Light light({-8, 6, 10}, {0.98, 0.92, 0.96});
+	Light light({-3, 2, 4}, {0.98, 0.92, 0.96});
 	light.initMatrixes();
 	// std::cout << object.getCenter() << '\n';
-	// this->camera.startingPos = object.getCenter();
+	this->camera.startingPos = light.pos;
 
 	glEnable(GL_DEPTH_TEST);
 
-	// glEnable(GL_CULL_FACE);
-	// glCullFace(GL_FRONT);
-	// glFrontFace(GL_CCW);
+	glEnable(GL_CULL_FACE);
 
 	mat4f model = mat4f::makeIdentity();
 
@@ -322,11 +336,9 @@ void App::run() {
 	this->skybox.init();
 
 	File3D plane;
-	// plane.load("models/plane.obj");
-	// planeObj.configFromFile(plane);
-	// planeObj.translate({0, 0, 0});
-
-	this->camera.startingPos = light.pos;
+	plane.load("models/plane.obj");
+	planeObj.configFromFile(plane);
+	planeObj.translate({0, 0, 0});
 
 	while (!glfwWindowShouldClose(this->window)) {
 		this->fpsUpdate();
@@ -337,7 +349,8 @@ void App::run() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		if (this->isRotating)
-			object.rotate(15 * this->delta, vec3f(0, 1, 0), object.getCenter());
+			object.rotate(-15 * this->delta, vec3f(0, 1, 0),
+						  object.getCenter());
 
 		this->computeShadowMap(light, object);
 
@@ -364,7 +377,7 @@ void App::run() {
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, shadowMap.getTexture());
 		// object.draw(this->shader);
-		// planeObj.draw(this->shader);
+		planeObj.draw(this->shader);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glViewport(0, 0, this->resizeVec.x, this->resizeVec.y);
@@ -380,7 +393,6 @@ void App::run() {
 			object.draw(this->shader);
 
 		// this->viewDebugShadow();
-		// glDepthFunc(GL_LEQUAL);
 		this->skybox.draw(this->camera, this->isSkyboxed, this->resizeVec.x,
 						  this->resizeVec.y, this->modes[this->polygonMode]);
 

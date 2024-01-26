@@ -6,6 +6,7 @@ in vec3 normal;
 in vec3 fragPos;
 in vec4 FragPosLight;
 in vec3 vPos;
+in vec3 vNormal;
 
 out vec4 FragColor;
 
@@ -14,13 +15,14 @@ uniform vec3 lightAmbientIntensity;
 uniform vec3 lightDiffuseIntensity;
 uniform vec3 lightSpecularIntensity;
 uniform vec3 camPos;
-
 uniform float factor;
 uniform sampler2D ourTexture;
 uniform sampler2D shadowMap;
+uniform int uvMappingMode;
 
 float shadowCalc(float dotLight){
-	vec3 pos = FragPosLight.xyz * 0.5 + 0.5;
+	vec3 pos = FragPosLight.xyz / FragPosLight.w;
+	pos = pos * 0.5 + 0.5;
 	if (pos.z > 1.0){
 		pos.z = 1.0;
 	}
@@ -57,13 +59,27 @@ vec4 getLight(vec4 color){
 
 vec2 sphericalUv(vec3 pos)
 {
-	pos = normalize(pos);
-	return vec2(0.5 - atan(pos.z, pos.x) / (2.0 * PI), 0.5 - asin(pos.y) / PI);
+	pos = normalize(pos * 0.5);
+	float scale = PI / 6;
+	return vec2(0.5 + atan(pos.z, pos.x) / (2.0 * scale), 0.5 + asin(pos.y) / scale);
+}
+
+vec4 getTextureColor(){
+	if (uvMappingMode == 0)
+		return (texture(ourTexture, texCoord));
+	return (texture(ourTexture, sphericalUv(vPos)));
 }
 
 void main() {
-	vec3 pixelColor = color;
-	FragColor = getLight(mix(texture(ourTexture, sphericalUv(vPos)), vec4(color, 1.0), factor));
+	// vec3 pixelColor = color;
+
+	// FragColor = getLight(mix(texture(ourTexture, sphericalUv(vPos)), vec4(color, 1.0), factor));
+	FragColor = getLight(mix(getTextureColor(), vec4(color, 1.0), factor));
+
+
+	// FragColor = getLight(triplanarUv(vPos));
+
+
 	// vec3 i = normalize(fragPos);
 	// vec3 r = reflect(i, normalize(normal));
 	// FragColor = vec4(texture(ourTexture, i.xy));
