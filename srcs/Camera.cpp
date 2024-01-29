@@ -8,7 +8,7 @@ void Camera::reset() {
 	this->pos = startingPos;
 	this->target = vec3f(0, 0, -1);
 	this->up = vec3f(0, 1, 0);
-	this->rotation = vec3f(0, 0, 0);
+	this->rotation = vec3f(0, 180, 0);
 }
 
 void Camera::rotationHandling() {
@@ -30,5 +30,5 @@ void Camera::setStartingPos(vec3f const &startPos, vec3f const &boundVec) {
 	this->startingPos = startPos;
 	size_t lenSquare =
 		std::sqrt((boundVec.x * boundVec.x) + (boundVec.y * boundVec.y));
-	this->startingPos.x -= lenSquare * 1.5;
+	this->startingPos.x += lenSquare * 1.5;
 }

@@ -1,7 +1,9 @@
 #include "Object.hpp"
 
 void Object::configFromFile(File3D const &file) {
+	this->vertices.clear();
 	this->center = file.getCenter();
+	this->minCoord = file.getMinCoord();
 	this->model = mat4f::makeIdentity();
 	std::vector<Face> const &faces = file.getFaces();
 	for (Face f : faces) {
@@ -50,6 +52,7 @@ void Object::configFromFile(File3D const &file) {
 }
 
 void Object::draw(Shader const &shader) const {
+	shader.use();
 	shader.setUniform("model", this->model);
 	glBindVertexArray(this->vao);
 	glDrawArrays(GL_TRIANGLES, 0, vertices.size());
@@ -57,17 +60,23 @@ void Object::draw(Shader const &shader) const {
 }
 
 void Object::rotate(float angle, vec3f const &axis, vec3f const &center) {
-	this->model.translate(center * -1);
+	// this->model.translate(center);
 	this->model.rotate(angle, axis);
-	this->model.translate(center);
+	// this->model.translate(center * -1);
 }
 
 vec3f const &Object::getCenter() const {
 	return (this->center);
 }
 
+vec3f const &Object::getMinCoord() const {
+	return (this->minCoord);
+}
+
 void Object::translate(vec3f const &axis) {
 	this->model.translate(axis);
+	this->minCoord += axis;
+	this->center += axis;
 }
 
 void Object::scale(vec3f const &scale) {
@@ -75,4 +84,7 @@ void Object::scale(vec3f const &scale) {
 	this->center.x /= (1 / scale.x);
 	this->center.y /= (1 / scale.y);
 	this->center.z /= (1 / scale.z);
+	this->minCoord.x /= (1 / scale.x);
+	this->minCoord.y /= (1 / scale.y);
+	this->minCoord.z /= (1 / scale.z);
 }

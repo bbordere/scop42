@@ -1,6 +1,10 @@
 #include "File3D.hpp"
 
 void File3D::load(std::string const &path) {
+	this->vertices.clear();
+	this->normals.clear();
+	this->texCoords.clear();
+	this->faces.clear();
 	std::srand(std::time(nullptr));
 	std::regex obj_regex(".+(\\.obj)$");
 	if (!std::regex_match(path, obj_regex))
@@ -81,6 +85,9 @@ void File3D::computeCenter() {
 		max[1] = std::max(this->vertices[i].y, max[1]);
 		max[2] = std::max(this->vertices[i].z, max[2]);
 	}
+
+	this->minCoord = {min[0], min[1], min[2]};
+
 	this->boundVector = {
 		max[0] - min[0],
 		max[1] - min[1],
@@ -92,6 +99,10 @@ void File3D::computeCenter() {
 
 vec3f const &File3D::getBoundVec() const {
 	return (this->boundVector);
+}
+
+vec3f const &File3D::getMinCoord() const {
+	return (this->minCoord);
 }
 
 Face File3D::makeFace(std::vector<std::string> const &input, std::size_t v1,

@@ -32,6 +32,9 @@ class App {
 		Shader chromeShader;
 		Texture textures[10];
 		Light light;
+		Object object;
+
+		std::string curObjPath;
 
 		bool isSpacePressed;
 		bool isTextured = true;
@@ -48,6 +51,8 @@ class App {
 
 		GLenum const modes[3] = {GL_FILL, GL_LINE, GL_POINT};
 
+		void *userPointers[2];
+
 	public:
 		App();
 		void init(std::string const &path, std::string const &texture);
@@ -63,11 +68,13 @@ class App {
 		void setupLight();
 		void setRenderUniforms(mat4f const &view, mat4f const &proj);
 		void computeRendering(mat4f &model, Light const &light);
-		void computeShadowMap(Light const &light, Object const &object);
+		void computeShadowMap();
 		void fpsUpdate();
 		void viewDebugShadow();
 		void toggleBoolean(bool *val);
 		void toggleUVMapping();
 		void initKeysCallbacks();
 		void initWindow();
+		void modelChangingHandler();
+		void initObject(std::string const &path);
 };

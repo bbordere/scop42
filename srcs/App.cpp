@@ -110,14 +110,14 @@ void App::initWindow() {
 
 	glfwSetFramebufferSizeCallback(window, resizeHandler);
 	glfwSetDropCallback(window, dropHandler);
-	glfwSetWindowUserPointer(this->window, &this->sizeVec);
+
+	this->userPointers[0] = &this->sizeVec;
+	this->userPointers[1] = &this->curObjPath;
+
+	glfwSetWindowUserPointer(this->window, this->userPointers);
 }
 
 void App::init(std::string const &path, std::string const &texturePath) {
-
-	this->model3d.load(path);
-	this->camera.setStartingPos(model3d.getCenter(), model3d.getBoundVec());
-	this->camera.reset();
 
 	this->initWindow();
 
@@ -125,6 +125,8 @@ void App::init(std::string const &path, std::string const &texturePath) {
 		glfwTerminate();
 		throw std::runtime_error("Cant init GLAD !");
 	}
+
+	this->initObject(path);
 
 	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_DEPTH_TEST);
@@ -136,6 +138,7 @@ void App::init(std::string const &path, std::string const &texturePath) {
 	this->chromeShader = Shader("shaders/chrome.frag", "shaders/chrome.vert");
 	this->textures[0].loadFromFile(texturePath);
 	this->light = Light({-3, 2, 4}, {0.98, 0.92, 0.96});
+	// this->light = Light({0, 0, 4}, {0.98, 0.92, 0.96});
 	this->light.initMatrixes();
 }
 
@@ -144,17 +147,18 @@ void App::toggleBoolean(bool *val) {
 }
 
 void App::rotateCamera(DIRECTION dir, int factor) {
+	float rotaSpeed = 40.0f * this->delta;
 	switch (dir) {
 		case LEFT:
-			this->camera.rotation.y += 0.1f * factor;
+			this->camera.rotation.y += rotaSpeed * factor;
 			break;
 		case UP:
 			if (factor == 1)
 				this->camera.rotation.x =
-					std::min(this->camera.rotation.x + 0.1f, 89.0f);
+					std::min(this->camera.rotation.x + rotaSpeed, 89.0f);
 			else
 				this->camera.rotation.x =
-					std::max(this->camera.rotation.x - 0.1f, -89.0f);
+					std::max(this->camera.rotation.x - rotaSpeed, -89.0f);
 			break;
 		default:
 			break;
@@ -222,10 +226,7 @@ void App::computeRendering(mat4f &model, Light const &light) {
 // #include <glm/gtc/type_ptr.hpp>
 Object planeObj;
 
-void App::computeShadowMap(Light const &light, Object const &object) {
-	// mat4f lightProj = conv(light.pos);
-
-	// glCullFace(GL_FRONT);
+void App::computeShadowMap() {
 	glDisable(GL_CULL_FACE);
 
 	this->shadowMap.getShader().use();
@@ -233,12 +234,9 @@ void App::computeShadowMap(Light const &light, Object const &object) {
 	glViewport(0, 0, SHADOW_RES, SHADOW_RES);
 	glBindFramebuffer(GL_FRAMEBUFFER, this->shadowMap.getFbo());
 	glClear(GL_DEPTH_BUFFER_BIT);
-	object.draw(this->shadowMap.getShader());
+	this->object.draw(this->shadowMap.getShader());
 
 	glEnable(GL_CULL_FACE);
-
-	// glCullFace(GL_BACK);
-	// planeObj.draw(shadowMap.getShader());
 }
 
 void App::fpsUpdate() {
@@ -293,10 +291,30 @@ void App::viewDebugShadow() {
 	glBindVertexArray(0);
 }
 
-void App::run() {
+void App::modelChangingHandler() {
+	static std::string path = this->curObjPath;
+	if (path != this->curObjPath) {
+		this->initObject(this->curObjPath);
+		path = this->curObjPath;
+	}
+}
 
-	Object object;
-	object.configFromFile(this->model3d);
+void App::initObject(std::string const &path) {
+	this->model3d.load(path);
+	this->object.configFromFile(this->model3d);
+	this->curObjPath = path;
+	std::cout << "BOUND" << this->model3d.getBoundVec() << '\n';
+	std::cout << "CENTER" << this->model3d.getCenter() << '\n';
+	std::cout << "MIN " << this->model3d.getMinCoord() << '\n';
+	if (this->object.getCenter() != vec3f(0, 0, 0))
+		this->object.translate({-object.getCenter().x, -object.getMinCoord().y,
+								-object.getCenter().z});
+	this->camera.setStartingPos({0, this->object.getCenter().y, 0},
+								model3d.getBoundVec());
+	this->camera.reset();
+}
+
+void App::run() {
 
 	mat4f model = mat4f::makeIdentity();
 
@@ -309,11 +327,13 @@ void App::run() {
 	this->skybox.init();
 
 	File3D plane;
-	plane.load("models/plane.obj");
+	plane.load("models/sphere.obj");
 	planeObj.configFromFile(plane);
-	planeObj.translate({0, 0, 0});
+	planeObj.scale({0.05, 0.05, 0.05});
+	planeObj.translate(this->object.getCenter());
 
 	while (!glfwWindowShouldClose(this->window)) {
+		this->modelChangingHandler();
 		this->fpsUpdate();
 		this->keyManager.updateKeysStates(window);
 		this->keyManager.executeActions();
@@ -322,10 +342,10 @@ void App::run() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		if (this->isRotating)
-			object.rotate(-15 * this->delta, vec3f(0, 1, 0),
-						  object.getCenter());
+			this->object.rotate(-15 * this->delta, vec3f(0, 1, 0),
+								this->object.getCenter());
 
-		this->computeShadowMap(light, object);
+		this->computeShadowMap();
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glViewport(0, 0, this->sizeVec.x, this->sizeVec.y);
@@ -346,7 +366,8 @@ void App::run() {
 		this->textures[0].bind();
 		glActiveTexture(GL_TEXTURE1);
 		this->shadowMap.bindTexture();
-		planeObj.draw(this->shader);
+
+		// planeObj.draw(this->shader);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glViewport(0, 0, this->sizeVec.x, this->sizeVec.y);
@@ -356,10 +377,10 @@ void App::run() {
 			this->chromeShader.setUniform("view", view);
 			this->chromeShader.setUniform("cameraPos", this->camera.pos);
 			this->chromeShader.setUniform("projection", projection);
-			object.draw(this->chromeShader);
+			this->object.draw(this->chromeShader);
 		}
 		else
-			object.draw(this->shader);
+			this->object.draw(this->shader);
 
 		// this->viewDebugShadow();
 		this->skybox.draw(this->camera, this->isSkyboxed, this->sizeVec.x,

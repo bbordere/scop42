@@ -42,12 +42,16 @@ float degToRad(float deg) {
 }
 
 void resizeHandler(GLFWwindow *window, int w, int h) {
-	vec2u *ptr = reinterpret_cast<vec2u *>(glfwGetWindowUserPointer(window));
-	*ptr = {static_cast<unsigned int>(w), static_cast<unsigned int>(h)};
+	void **pointers =
+		reinterpret_cast<void **>(glfwGetWindowUserPointer(window));
+	vec2u *vec = reinterpret_cast<vec2u *>(pointers[0]);
+	*vec = {static_cast<unsigned int>(w), static_cast<unsigned int>(h)};
 };
 
 void dropHandler(GLFWwindow *window, int count, char const **paths) {
-	for (int i = 0; i < count; ++i) {
-		std::cout << std::string(paths[i]) << '\n';
-	}
+	void **pointers =
+		reinterpret_cast<void **>(glfwGetWindowUserPointer(window));
+
+	std::string *path = reinterpret_cast<std::string *>(pointers[1]);
+	*path = paths[0];
 }
