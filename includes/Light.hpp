@@ -4,7 +4,6 @@
 #include "Vectors.hpp"
 
 class Light {
-	private:
 	public:
 		vec3f pos;
 		vec3f color;
@@ -18,6 +17,7 @@ class Light {
 		mat4f space;
 
 	public:
+		Light();
 		Light(vec3f pos, vec3f color);
 		void initMatrixes();
 

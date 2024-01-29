@@ -13,6 +13,7 @@
 #include "Shader.hpp"
 #include "ShadowMap.hpp"
 #include "SkyBox.hpp"
+#include "Texture.hpp"
 #include "Vectors.hpp"
 
 #include <cmath>
@@ -29,6 +30,8 @@ class App {
 		SkyBox skybox;
 		ShadowMap shadowMap;
 		Shader chromeShader;
+		Texture textures[10];
+		Light light;
 
 		bool isSpacePressed;
 		bool isTextured = true;
@@ -41,7 +44,7 @@ class App {
 		int polygonMode = 0;
 
 		unsigned int width, height;
-		vec2u resizeVec;
+		vec2u sizeVec;
 
 		GLenum const modes[3] = {GL_FILL, GL_LINE, GL_POINT};
 
@@ -58,12 +61,13 @@ class App {
 		void rotateCamera(DIRECTION dir, int factor);
 		void resetCamera();
 		void setupLight();
-		void setRenderUniforms(Light const &light, mat4f const &view,
-							   mat4f const &proj);
+		void setRenderUniforms(mat4f const &view, mat4f const &proj);
 		void computeRendering(mat4f &model, Light const &light);
 		void computeShadowMap(Light const &light, Object const &object);
 		void fpsUpdate();
 		void viewDebugShadow();
 		void toggleBoolean(bool *val);
 		void toggleUVMapping();
+		void initKeysCallbacks();
+		void initWindow();
 };

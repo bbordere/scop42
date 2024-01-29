@@ -12,7 +12,7 @@ FILES = $(SRCS_DIR)main.cpp $(SRCS_DIR)BmpImage.cpp $(SRCS_DIR)App.cpp\
 		$(SRCS_DIR)Shader.cpp $(SRCS_DIR)Utils.cpp $(SRCS_DIR)File3D.cpp\
 		$(SRCS_DIR)Camera.cpp $(SRCS_DIR)Face.cpp $(SRCS_DIR)Light.cpp\
 		$(SRCS_DIR)KeyManager.cpp $(SRCS_DIR)SkyBox.cpp $(SRCS_DIR)Object.cpp\
-		$(SRCS_DIR)ShadowMap.cpp
+		$(SRCS_DIR)ShadowMap.cpp $(SRCS_DIR)Texture.cpp
 
 OBJS = $(patsubst $(SRCS_DIR)%.cpp, $(OBJ_DIR)%.o, $(FILES))
 DEPS = $(patsubst $(SRC_DIR)%.cpp, $(DEP_DIR)%.d, $(notdir $(FILES)))

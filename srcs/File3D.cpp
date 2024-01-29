@@ -39,13 +39,6 @@ void File3D::computeNormals(Face &face) {
 }
 
 void File3D::computeUV(Face &face) {
-	// face.texCoords[0] =
-	// 	vec2f(face.vertices[0].x * 0.5 + 0.5, face.vertices[0].y * 0.5 + 0.5);
-	// face.texCoords[1] =
-	// 	vec2f(face.vertices[1].x * 0.5 + 0.5, face.vertices[1].y * 0.5 + 0.5);
-	// face.texCoords[2] =
-	// 	vec2f(face.vertices[2].x * 0.5 + 0.5, face.vertices[2].y * 0.5 + 0.5);
-
 	vec3f s1 = face.vertices[1] - face.vertices[0];
 	vec3f s2 = face.vertices[2] - face.vertices[1];
 	vec3f norm = vec3f::cross(s1, s2).normalize();

@@ -1,11 +1,13 @@
 #pragma once
 
 #include "Shader.hpp"
-#define SHADOW_RES 8192
+#include "Texture.hpp"
+#define SHADOW_RES 8192 * 2
 
 class ShadowMap {
 	private:
-		GLuint fbo, textureId;
+		GLuint fbo;
+		Texture texture;
 		Shader shader;
 
 	public:
@@ -13,4 +15,5 @@ class ShadowMap {
 		Shader const &getShader() const;
 		GLuint getFbo() const;
 		GLuint getTexture() const;
+		void bindTexture() const;
 };

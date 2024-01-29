@@ -32,5 +32,6 @@ void split(std::string str, std::string const &delimiter,
 
 float degToRad(float deg);
 void resizeHandler(GLFWwindow *window, int w, int h);
+void dropHandler(GLFWwindow* window, int count, const char** paths);
 
 // clang-format on

@@ -6,11 +6,6 @@ void App::closeWindow() {
 	glfwSetWindowShouldClose(this->window, true);
 }
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-
-GLuint texture;
-
 void App::toggleUVMapping() {
 	static int mode = 0;
 	mode = (mode + 1) % 2;
@@ -18,45 +13,7 @@ void App::toggleUVMapping() {
 	this->shader.setUniform("uvMappingMode", static_cast<int>(mode));
 }
 
-void App::init(std::string const &path, std::string const &texturePath) {
-
-	model3d.load(path);
-	this->camera.setStartingPos(model3d.getCenter(), model3d.getBoundVec());
-	this->camera.reset();
-	int width, height, nrChannels;
-	stbi_set_flip_vertically_on_load(true);
-	unsigned char *data =
-		stbi_load(texturePath.c_str(), &width, &height, &nrChannels, 0);
-
-	if (!glfwInit()) {
-		throw std::runtime_error("Cant init OpenGL !");
-	}
-
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_SAMPLES, 4);
-
-	this->resizeVec = {1280, 720};
-
-	this->window = glfwCreateWindow(this->resizeVec.x, this->resizeVec.y,
-									"scop", NULL, NULL);
-	if (!window) {
-		throw std::runtime_error("Cant init Window !");
-	}
-	glfwMakeContextCurrent(window);
-	glfwSwapInterval(0);
-
-	glfwSetFramebufferSizeCallback(window, resizeHandler);
-	glfwSetWindowUserPointer(window, &this->resizeVec);
-
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-		glfwTerminate();
-		throw std::runtime_error("Cant init GLAD !");
-	}
-	glEnable(GL_MULTISAMPLE);
-
-	this->shader = Shader("shaders/default.frag", "shaders/default.vert");
+void App::initKeysCallbacks() {
 	this->keyManager.registerCallback(
 		GLFW_KEY_ESCAPE,
 		std::function<void()>{std::bind(&App::closeWindow, this)}, PRESSED);
@@ -131,28 +88,55 @@ void App::init(std::string const &path, std::string const &texturePath) {
 		GLFW_KEY_U,
 		std::function<void()>{std::bind(&App::toggleUVMapping, this)},
 		PRESSED_ONCE);
+}
 
-	// BmpImage image;
-	// image.extractData("res/texture.bmp");
-	// uint8_t *data = image.data.data();
-	// width = image.getInfoHeader().imgWidth;
-	// height = image.getInfoHeader().imgHeight;
+void App::initWindow() {
+	if (!glfwInit()) {
+		throw std::runtime_error("Cant init OpenGL !");
+	}
 
-	glGenTextures(1, &texture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_SAMPLES, 4);
+	this->sizeVec = {1280, 720};
+	this->window =
+		glfwCreateWindow(this->sizeVec.x, this->sizeVec.y, "scop", NULL, NULL);
+	if (!window) {
+		throw std::runtime_error("Cant init Window !");
+	}
+	glfwMakeContextCurrent(this->window);
+	glfwSwapInterval(0);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glfwSetFramebufferSizeCallback(window, resizeHandler);
+	glfwSetDropCallback(window, dropHandler);
+	glfwSetWindowUserPointer(this->window, &this->sizeVec);
+}
 
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
-				 GL_UNSIGNED_BYTE, data);
+void App::init(std::string const &path, std::string const &texturePath) {
 
-	glGenerateMipmap(GL_TEXTURE_2D);
+	this->model3d.load(path);
+	this->camera.setStartingPos(model3d.getCenter(), model3d.getBoundVec());
+	this->camera.reset();
 
-	// glBindTexture(GL_TEXTURE_2D, texture);
+	this->initWindow();
+
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+		glfwTerminate();
+		throw std::runtime_error("Cant init GLAD !");
+	}
+
+	glEnable(GL_MULTISAMPLE);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+
+	this->shader = Shader("shaders/default.frag", "shaders/default.vert");
+	this->initKeysCallbacks();
+
 	this->chromeShader = Shader("shaders/chrome.frag", "shaders/chrome.vert");
+	this->textures[0].loadFromFile(texturePath);
+	this->light = Light({-3, 2, 4}, {0.98, 0.92, 0.96});
+	this->light.initMatrixes();
 }
 
 void App::toggleBoolean(bool *val) {
@@ -206,8 +190,7 @@ void App::moveCamera(DIRECTION dir, int factor) {
 	}
 }
 
-void App::setRenderUniforms(Light const &light, mat4f const &view,
-							mat4f const &proj) {
+void App::setRenderUniforms(mat4f const &view, mat4f const &proj) {
 	this->shader.setUniform("lightPos", light.pos);
 	this->shader.setUniform("lightAmbientIntensity", light.ambientIntensity);
 	this->shader.setUniform("lightDiffuseIntensity", light.diffuseIntensity);
@@ -215,6 +198,8 @@ void App::setRenderUniforms(Light const &light, mat4f const &view,
 	this->shader.setUniform("view", view);
 	this->shader.setUniform("projection", proj);
 	this->shader.setUniform("camPos", this->camera.pos);
+	this->shader.setUniform("lightSpaceMatrix", this->light.getSpace());
+	this->shader.setUniform("shadowMap", 1);
 }
 
 void App::computeRendering(mat4f &model, Light const &light) {
@@ -243,12 +228,12 @@ void App::computeShadowMap(Light const &light, Object const &object) {
 	// glCullFace(GL_FRONT);
 	glDisable(GL_CULL_FACE);
 
-	shadowMap.getShader().use();
-	shadowMap.getShader().setUniform("lightProj", light.getSpace());
+	this->shadowMap.getShader().use();
+	this->shadowMap.getShader().setUniform("lightProj", light.getSpace());
 	glViewport(0, 0, SHADOW_RES, SHADOW_RES);
-	glBindFramebuffer(GL_FRAMEBUFFER, shadowMap.getFbo());
+	glBindFramebuffer(GL_FRAMEBUFFER, this->shadowMap.getFbo());
 	glClear(GL_DEPTH_BUFFER_BIT);
-	object.draw(shadowMap.getShader());
+	object.draw(this->shadowMap.getShader());
 
 	glEnable(GL_CULL_FACE);
 
@@ -313,18 +298,6 @@ void App::run() {
 	Object object;
 	object.configFromFile(this->model3d);
 
-	// object.scale({0.5, 0.5, 0.5});
-	std::cout << this->model3d.getCenter() << '\n';
-	// Light light({-8, 6, 10}, {0.98, 0.92, 0.96});
-	Light light({-3, 2, 4}, {0.98, 0.92, 0.96});
-	light.initMatrixes();
-	// std::cout << object.getCenter() << '\n';
-	this->camera.startingPos = light.pos;
-
-	glEnable(GL_DEPTH_TEST);
-
-	glEnable(GL_CULL_FACE);
-
 	mat4f model = mat4f::makeIdentity();
 
 	glUseProgram(0);
@@ -355,32 +328,28 @@ void App::run() {
 		this->computeShadowMap(light, object);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glViewport(0, 0, this->resizeVec.x, this->resizeVec.y);
+		glViewport(0, 0, this->sizeVec.x, this->sizeVec.y);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		this->shader.use();
 
 		mat4f projection = mat4f::makePerspective(
-			45.0f, (float)this->resizeVec.x / (float)this->resizeVec.y, 0.1f,
+			45.0f, (float)this->sizeVec.x / (float)this->sizeVec.y, 0.1f,
 			250.0f);
 		mat4f view = mat4f::lookAt(this->camera.pos,
 								   this->camera.pos + this->camera.target,
 								   this->camera.up);
 
-		// mat4f lightProj = conv(light.pos);
-		this->setRenderUniforms(light, view, projection);
-		this->computeRendering(model, light);
-		this->shader.setUniform("lightSpaceMatrix", light.getSpace());
-		this->shader.setUniform("shadowMap", 1);
+		this->setRenderUniforms(view, projection);
+		this->computeRendering(model, this->light);
 
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture);
+		this->textures[0].bind();
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, shadowMap.getTexture());
-		// object.draw(this->shader);
+		this->shadowMap.bindTexture();
 		planeObj.draw(this->shader);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glViewport(0, 0, this->resizeVec.x, this->resizeVec.y);
+		glViewport(0, 0, this->sizeVec.x, this->sizeVec.y);
 
 		if (this->isChromed) {
 			this->chromeShader.use();
@@ -393,8 +362,8 @@ void App::run() {
 			object.draw(this->shader);
 
 		// this->viewDebugShadow();
-		this->skybox.draw(this->camera, this->isSkyboxed, this->resizeVec.x,
-						  this->resizeVec.y, this->modes[this->polygonMode]);
+		this->skybox.draw(this->camera, this->isSkyboxed, this->sizeVec.x,
+						  this->sizeVec.y, this->modes[this->polygonMode]);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
