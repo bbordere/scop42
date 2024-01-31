@@ -66,6 +66,12 @@ class Vector3 {
 							static_cast<T>(this->z * x)));
 		}
 
+		Vector3 operator*(Vector3<T> other) const {
+			return (Vector3(static_cast<T>(this->x * other.x),
+							static_cast<T>(this->y * other.y),
+							static_cast<T>(this->z * other.z)));
+		}
+
 		template <typename U>
 		Vector3 operator/(U x) const {
 			return (Vector3(this->x / static_cast<T>(x),
@@ -102,17 +108,19 @@ class Vector3 {
 							(v1.z * v2.x) - (v1.x * v2.z),
 							(v1.x * v2.y) - (v1.y * v2.x)));
 		}
+
+		friend bool operator==(Vector3<T> const &l, Vector3<T> const &r) {
+			return (l.x == r.x && l.y == r.y && l.z == r.z);
+		}
+
+		friend bool operator!=(Vector3<T> const &l, Vector3<T> const &r) {
+			return (!(l == r));
+		}
+
+		friend bool operator<(Vector3<T> const &l, Vector3<T> const &r) {
+			return (l.len() < r.len());
+		}
 };
-
-template <class T>
-bool operator==(Vector3<T> const &l, Vector3<T> const &r) {
-	return (l.x == r.x && l.y == r.y && l.z == r.z);
-}
-
-template <class T>
-bool operator!=(Vector3<T> const &l, Vector3<T> const &r) {
-	return (!(l == r));
-}
 
 template <typename T>
 std::ostream &operator<<(std::ostream &output, Vector3<T> const &vec) {

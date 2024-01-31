@@ -88,6 +88,11 @@ void App::initKeysCallbacks() {
 		GLFW_KEY_U,
 		std::function<void()>{std::bind(&App::toggleUVMapping, this)},
 		PRESSED_ONCE);
+	this->keyManager.registerCallback(
+		GLFW_KEY_B,
+		std::function<void()>{
+			std::bind(&App::toggleBoolean, this, &this->isBoxRendered)},
+		PRESSED_ONCE);
 }
 
 void App::initWindow() {
@@ -137,7 +142,7 @@ void App::init(std::string const &path, std::string const &texturePath) {
 
 	this->chromeShader = Shader("shaders/chrome.frag", "shaders/chrome.vert");
 	this->textures[0].loadFromFile(texturePath);
-	this->light = Light({-3, 2, 4}, {0.98, 0.92, 0.96});
+	this->light = Light({3, 2, 4}, {0.98, 0.92, 0.96});
 	// this->light = Light({0, 0, 4}, {0.98, 0.92, 0.96});
 	this->light.initMatrixes();
 }
@@ -206,7 +211,7 @@ void App::setRenderUniforms(mat4f const &view, mat4f const &proj) {
 	this->shader.setUniform("shadowMap", 1);
 }
 
-void App::computeRendering(mat4f &model, Light const &light) {
+void App::computeRendering(Light const &light) {
 
 	this->camera.rotationHandling();
 
@@ -236,7 +241,7 @@ void App::computeShadowMap() {
 	glClear(GL_DEPTH_BUFFER_BIT);
 	this->object.draw(this->shadowMap.getShader());
 
-	glEnable(GL_CULL_FACE);
+	// glEnable(GL_CULL_FACE);
 }
 
 void App::fpsUpdate() {
@@ -303,15 +308,18 @@ void App::initObject(std::string const &path) {
 	this->model3d.load(path);
 	this->object.configFromFile(this->model3d);
 	this->curObjPath = path;
-	std::cout << "BOUND" << this->model3d.getBoundVec() << '\n';
-	std::cout << "CENTER" << this->model3d.getCenter() << '\n';
-	std::cout << "MIN " << this->model3d.getMinCoord() << '\n';
+	// std::cout << "BOUND" << this->model3d.getBoundVec() << '\n';
+	// std::cout << "CENTER" << this->model3d.getCenter() << '\n';
+	// std::cout << "MIN " << this->model3d.getMinCoord() << '\n';
+
 	if (this->object.getCenter() != vec3f(0, 0, 0))
 		this->object.translate({-object.getCenter().x, -object.getMinCoord().y,
 								-object.getCenter().z});
+
 	this->camera.setStartingPos({0, this->object.getCenter().y, 0},
-								model3d.getBoundVec());
+								object.getBounds());
 	this->camera.reset();
+	this->box.create(this->object);
 }
 
 void App::run() {
@@ -327,10 +335,10 @@ void App::run() {
 	this->skybox.init();
 
 	File3D plane;
-	plane.load("models/sphere.obj");
-	planeObj.configFromFile(plane);
-	planeObj.scale({0.05, 0.05, 0.05});
-	planeObj.translate(this->object.getCenter());
+	// plane.load("models/sphere.obj");
+	// planeObj.configFromFile(plane);
+	// planeObj.scale({0.05, 0.05, 0.05});
+	// planeObj.translate(this->object.getCenter());
 
 	while (!glfwWindowShouldClose(this->window)) {
 		this->modelChangingHandler();
@@ -360,7 +368,7 @@ void App::run() {
 								   this->camera.up);
 
 		this->setRenderUniforms(view, projection);
-		this->computeRendering(model, this->light);
+		this->computeRendering(this->light);
 
 		glActiveTexture(GL_TEXTURE0);
 		this->textures[0].bind();
@@ -371,6 +379,10 @@ void App::run() {
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glViewport(0, 0, this->sizeVec.x, this->sizeVec.y);
+		std::cout << this->isBoxRendered << '\n';
+
+		if (this->isBoxRendered)
+			this->box.draw(projection, view, this->object.getModel());
 
 		if (this->isChromed) {
 			this->chromeShader.use();

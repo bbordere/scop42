@@ -26,9 +26,9 @@ void Camera::rotationHandling() {
 		this->target));
 }
 
-void Camera::setStartingPos(vec3f const &startPos, vec3f const &boundVec) {
+void Camera::setStartingPos(vec3f const &startPos,
+							std::pair<vec3f, vec3f> const &bounds) {
 	this->startingPos = startPos;
-	size_t lenSquare =
-		std::sqrt((boundVec.x * boundVec.x) + (boundVec.y * boundVec.y));
-	this->startingPos.x += lenSquare * 1.5;
+	float d = (bounds.second.y - bounds.first.y) / std::tan(45);
+	this->startingPos.x += (d * 4);
 }

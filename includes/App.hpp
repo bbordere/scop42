@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 
 #include "BmpImage.hpp"
+#include "BoundingBox.hpp"
 #include "Camera.hpp"
 #include "File3D.hpp"
 #include "KeyManager.hpp"
@@ -33,6 +34,7 @@ class App {
 		Texture textures[10];
 		Light light;
 		Object object;
+		BoundingBox box;
 
 		std::string curObjPath;
 
@@ -41,6 +43,7 @@ class App {
 		bool isRotating = true;
 		bool isSkyboxed = true;
 		bool isChromed = false;
+		bool isBoxRendered = false;
 		float delta = 0.0f;
 		float modelRotationAngle = 90.0f;
 		float blendingFActor = 0.0f;
@@ -67,7 +70,7 @@ class App {
 		void resetCamera();
 		void setupLight();
 		void setRenderUniforms(mat4f const &view, mat4f const &proj);
-		void computeRendering(mat4f &model, Light const &light);
+		void computeRendering(Light const &light);
 		void computeShadowMap();
 		void fpsUpdate();
 		void viewDebugShadow();

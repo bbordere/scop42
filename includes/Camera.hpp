@@ -14,5 +14,6 @@ class Camera {
 		Camera();
 		void reset();
 		void rotationHandling();
-		void setStartingPos(vec3f const &startPos, vec3f const &boundVec);
+		void setStartingPos(vec3f const &startPos,
+							std::pair<vec3f, vec3f> const &bounds);
 };

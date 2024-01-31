@@ -85,24 +85,6 @@ void File3D::computeCenter() {
 		max[1] = std::max(this->vertices[i].y, max[1]);
 		max[2] = std::max(this->vertices[i].z, max[2]);
 	}
-
-	this->minCoord = {min[0], min[1], min[2]};
-
-	this->boundVector = {
-		max[0] - min[0],
-		max[1] - min[1],
-		max[2] - min[2],
-	};
-	this->center = vec3f((min[0] + max[0]) / 2, (min[1] + max[1]) / 2,
-						 (min[2] + max[2]) / 2);
-}
-
-vec3f const &File3D::getBoundVec() const {
-	return (this->boundVector);
-}
-
-vec3f const &File3D::getMinCoord() const {
-	return (this->minCoord);
 }
 
 Face File3D::makeFace(std::vector<std::string> const &input, std::size_t v1,
@@ -222,8 +204,4 @@ vec3f const &File3D::getNormal(std::size_t i) const {
 
 vec2f const &File3D::getTexCoord(std::size_t i) const {
 	return (this->texCoords[i - 1]);
-}
-
-vec3f const &File3D::getCenter() const {
-	return (this->center);
 }
