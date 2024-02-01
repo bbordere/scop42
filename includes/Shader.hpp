@@ -11,7 +11,8 @@ class Shader {
 	public:
 		unsigned int programId;
 		Shader();
-		Shader(std::string const &fragPath, std::string const &vertPath);
+		Shader(std::string const &fragPath, std::string const &vertPath,
+			   std::string const &geomPath = "");
 
 		void use(void) const;
 

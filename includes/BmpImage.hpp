@@ -40,8 +40,8 @@ struct BmpInfoHeader {
 class BmpImage {
 	private:
 	public:
-		BmpFileHeader fileHeader = {0};
-		BmpInfoHeader infoHeader = {0};
+		BmpFileHeader fileHeader;
+		BmpInfoHeader infoHeader;
 		std::vector<uint8_t> data;
 
 	public:

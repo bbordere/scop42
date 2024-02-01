@@ -141,6 +141,8 @@ void App::init(std::string const &path, std::string const &texturePath) {
 	this->initKeysCallbacks();
 
 	this->chromeShader = Shader("shaders/chrome.frag", "shaders/chrome.vert");
+	this->normalsShader = Shader("shaders/normals.frag", "shaders/normals.vert",
+								 "shaders/normals.geom");
 	this->textures[0].loadFromFile(texturePath);
 	this->light = Light({3, 2, 4}, {0.98, 0.92, 0.96});
 	// this->light = Light({0, 0, 4}, {0.98, 0.92, 0.96});
@@ -211,7 +213,7 @@ void App::setRenderUniforms(mat4f const &view, mat4f const &proj) {
 	this->shader.setUniform("shadowMap", 1);
 }
 
-void App::computeRendering(Light const &light) {
+void App::computeRendering() {
 
 	this->camera.rotationHandling();
 
@@ -324,13 +326,7 @@ void App::initObject(std::string const &path) {
 
 void App::run() {
 
-	mat4f model = mat4f::makeIdentity();
-
 	glUseProgram(0);
-	double prevTime = 0.0;
-	double crntTime = 0.0;
-	double timeDiff;
-	unsigned int counter = 0;
 	this->shadowMap.init();
 	this->skybox.init();
 
@@ -350,8 +346,7 @@ void App::run() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		if (this->isRotating)
-			this->object.rotate(-15 * this->delta, vec3f(0, 1, 0),
-								this->object.getCenter());
+			this->object.rotate(-15 * this->delta, vec3f(0, 1, 0));
 
 		this->computeShadowMap();
 
@@ -368,7 +363,7 @@ void App::run() {
 								   this->camera.up);
 
 		this->setRenderUniforms(view, projection);
-		this->computeRendering(this->light);
+		this->computeRendering();
 
 		glActiveTexture(GL_TEXTURE0);
 		this->textures[0].bind();
@@ -379,7 +374,6 @@ void App::run() {
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glViewport(0, 0, this->sizeVec.x, this->sizeVec.y);
-		std::cout << this->isBoxRendered << '\n';
 
 		if (this->isBoxRendered)
 			this->box.draw(projection, view, this->object.getModel());
@@ -394,6 +388,10 @@ void App::run() {
 		else
 			this->object.draw(this->shader);
 
+		this->normalsShader.use();
+		this->normalsShader.setUniform("view", view);
+		this->normalsShader.setUniform("projection", projection);
+		this->object.draw(this->normalsShader);
 		// this->viewDebugShadow();
 		this->skybox.draw(this->camera, this->isSkyboxed, this->sizeVec.x,
 						  this->sizeVec.y, this->modes[this->polygonMode]);

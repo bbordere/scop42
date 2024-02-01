@@ -62,21 +62,21 @@ void BmpImage::extractData(std::string const &filePath) {
 uint8_t *BmpImage::getPixelBuffer() {
 	uint8_t *res =
 		new uint8_t[(this->infoHeader.imgWidth * this->infoHeader.imgHeight)];
-	for (std::size_t i = 0; i < (this->infoHeader.imgHeight) / 2; ++i) {
-		for (std::size_t j = 0; j < (this->infoHeader.imgWidth * 3); ++j) {
-			std::swap(this->data[i * this->infoHeader.imgWidth * 3 + j],
-					  this->data[((this->infoHeader.imgHeight - i) *
-								  this->infoHeader.imgWidth * 3) +
-								 j]);
-		}
-	}
-	std::size_t x = -1;
-	for (std::size_t i = 0; i < this->data.size(); i += 3) {
-		res[++x] = this->data[i];
-		res[++x] = this->data[i + 1];
-		res[++x] = this->data[i + 2];
-		// res[++x] = 255;
-	}
+	// for (std::size_t i = 0; i < (this->infoHeader.imgHeight) / 2; ++i) {
+	// 	for (std::size_t j = 0; j < (this->infoHeader.imgWidth * 3); ++j) {
+	// 		std::swap(this->data[i * this->infoHeader.imgWidth * 3 + j],
+	// 				  this->data[((this->infoHeader.imgHeight - i) *
+	// 							  this->infoHeader.imgWidth * 3) +
+	// 							 j]);
+	// 	}
+	// }
+	// std::size_t x = -1;
+	// for (std::size_t i = 0; i < this->data.size(); i += 3) {
+	// 	res[++x] = this->data[i];
+	// 	res[++x] = this->data[i + 1];
+	// 	res[++x] = this->data[i + 2];
+	// 	// res[++x] = 255;
+	// }
 
 	return (res);
 }

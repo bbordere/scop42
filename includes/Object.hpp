@@ -23,7 +23,7 @@ class Object {
 		void configFromFile(File3D const &file);
 		void draw(Shader const &shader) const;
 
-		void rotate(float angle, vec3f const &axis, vec3f const &center);
+		void rotate(float angle, vec3f const &axis);
 		void scale(vec3f const &scale);
 		void translate(vec3f const &axis);
 

@@ -1,7 +1,8 @@
 CXX = clang++
 CC = clang
 
-CXXFLAGS = -g3 -std=c++17 -I includes/ -I external/  -MMD -MP -march=native
+CXXFLAGS = -g3 -std=c++17 -I includes/ -I external/  -MMD -MP -march=native \
+			-Wall -Wextra -Werror
 CFLAGS = -Wall -Wextra -Werror
  
 SRCS_DIR = srcs/

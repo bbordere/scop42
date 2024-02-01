@@ -93,6 +93,11 @@ class Mat4 {
 			std::memmove(this->data, copy.data, 16 * sizeof(T));
 		}
 
+		Mat4 &operator=(Mat4 const &assign) {
+			std::memmove(this->data, assign.data, 16 * sizeof(T));
+			return (*this);
+		}
+
 		T const *getDataPtr() const {
 			return (&this->data[0]);
 		}

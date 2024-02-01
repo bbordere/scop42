@@ -21,6 +21,12 @@
 #include <exception>
 #include <iostream>
 
+enum
+{
+	IS_COLORED,
+	IS_TEXTURED,
+};
+
 class App {
 	private:
 		GLFWwindow *window;
@@ -35,15 +41,18 @@ class App {
 		Light light;
 		Object object;
 		BoundingBox box;
+		Shader normalsShader;
 
 		std::string curObjPath;
 
-		bool isSpacePressed;
+		bool isSpacePressed = false;
 		bool isTextured = true;
 		bool isRotating = true;
 		bool isSkyboxed = true;
 		bool isChromed = false;
 		bool isBoxRendered = false;
+		bool isNormalsRendered = false;
+
 		float delta = 0.0f;
 		float modelRotationAngle = 90.0f;
 		float blendingFActor = 0.0f;
@@ -70,7 +79,7 @@ class App {
 		void resetCamera();
 		void setupLight();
 		void setRenderUniforms(mat4f const &view, mat4f const &proj);
-		void computeRendering(Light const &light);
+		void computeRendering();
 		void computeShadowMap();
 		void fpsUpdate();
 		void viewDebugShadow();

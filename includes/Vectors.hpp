@@ -17,6 +17,8 @@ class Vector3 {
 
 		Vector3(T x, T y, T z): x(x), y(y), z(z) {}
 
+		Vector3(Vector3 const &copy): x(copy.x), y(copy.y), z(copy.z) {}
+
 		Vector3<T> &operator=(Vector3<T> const &assign) {
 			this->x = assign.x;
 			this->y = assign.y;
@@ -139,6 +141,8 @@ class Vector2 {
 		Vector2(): x(T()), y(T()) {}
 
 		Vector2(T x, T y): x(x), y(y) {}
+
+		Vector2(Vector2 const &copy): x(copy.x), y(copy.y) {}
 
 		Vector2<T> &operator=(Vector2<T> const &assign) {
 			this->x = assign.x;

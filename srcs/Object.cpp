@@ -59,7 +59,7 @@ void Object::draw(Shader const &shader) const {
 	glBindVertexArray(0);
 }
 
-void Object::rotate(float angle, vec3f const &axis, vec3f const &center) {
+void Object::rotate(float angle, vec3f const &axis) {
 	this->model.rotate(angle, axis);
 }
 

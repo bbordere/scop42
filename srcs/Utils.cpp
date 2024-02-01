@@ -49,6 +49,7 @@ void resizeHandler(GLFWwindow *window, int w, int h) {
 };
 
 void dropHandler(GLFWwindow *window, int count, char const **paths) {
+	static_cast<void>(count);
 	void **pointers =
 		reinterpret_cast<void **>(glfwGetWindowUserPointer(window));
 
