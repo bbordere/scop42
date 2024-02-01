@@ -24,12 +24,12 @@ void App::initKeysCallbacks() {
 	this->keyManager.registerCallback(
 		GLFW_KEY_SPACE,
 		std::function<void()>{
-			std::bind(&App::toggleBoolean, this, &this->isTextured)},
+			std::bind(&App::toggleBoolean, this, &this->features[TEXTURE])},
 		PRESSED_ONCE);
 	this->keyManager.registerCallback(
 		GLFW_KEY_R,
 		std::function<void()>{
-			std::bind(&App::toggleBoolean, this, &this->isRotating)},
+			std::bind(&App::toggleBoolean, this, &this->features[ROTATION])},
 		PRESSED_ONCE);
 	this->keyManager.registerCallback(
 		GLFW_KEY_W,
@@ -77,12 +77,11 @@ void App::initKeysCallbacks() {
 	this->keyManager.registerCallback(
 		GLFW_KEY_G,
 		std::function<void()>{
-			std::bind(&App::toggleBoolean, this, &this->isSkyboxed)},
+			std::bind(&App::toggleBoolean, this, &this->features[SKYBOX])},
 		PRESSED_ONCE);
 	this->keyManager.registerCallback(
 		GLFW_KEY_C,
-		std::function<void()>{
-			std::bind(&App::toggleBoolean, this, &this->isChromed)},
+		std::function<void()>{std::bind(&App::reflectModeHandling, this)},
 		PRESSED_ONCE);
 	this->keyManager.registerCallback(
 		GLFW_KEY_U,
@@ -91,7 +90,12 @@ void App::initKeysCallbacks() {
 	this->keyManager.registerCallback(
 		GLFW_KEY_B,
 		std::function<void()>{
-			std::bind(&App::toggleBoolean, this, &this->isBoxRendered)},
+			std::bind(&App::toggleBoolean, this, &this->features[BOUND_BOX])},
+		PRESSED_ONCE);
+	this->keyManager.registerCallback(
+		GLFW_KEY_N,
+		std::function<void()>{
+			std::bind(&App::toggleBoolean, this, &this->features[NORMALS])},
 		PRESSED_ONCE);
 }
 
@@ -147,6 +151,10 @@ void App::init(std::string const &path, std::string const &texturePath) {
 	this->light = Light({3, 2, 4}, {0.98, 0.92, 0.96});
 	// this->light = Light({0, 0, 4}, {0.98, 0.92, 0.96});
 	this->light.initMatrixes();
+	std::memset(&this->features, 0, sizeof(this->features));
+	this->features[TEXTURE] = true;
+	this->features[ROTATION] = true;
+	this->features[SKYBOX] = true;
 }
 
 void App::toggleBoolean(bool *val) {
@@ -175,6 +183,10 @@ void App::rotateCamera(DIRECTION dir, int factor) {
 void App::polygonModeHandling() {
 	this->polygonMode = (++this->polygonMode) % 3;
 	glPolygonMode(GL_FRONT_AND_BACK, this->modes[this->polygonMode]);
+}
+
+void App::reflectModeHandling() {
+	this->reflectMode = (++this->reflectMode) % 3;
 }
 
 void App::resetCamera() {
@@ -215,6 +227,7 @@ void App::setRenderUniforms(mat4f const &view, mat4f const &proj) {
 
 void App::computeRendering() {
 
+	bool isTextured = this->features[TEXTURE];
 	this->camera.rotationHandling();
 
 	this->blendingFActor += (!isTextured * 0.001f) + (isTextured * -0.001f);
@@ -249,7 +262,6 @@ void App::computeShadowMap() {
 void App::fpsUpdate() {
 	static float lastFrame = 0.0f;
 	static float prevUpdate = glfwGetTime();
-	static int frame = 0;
 	float currentFrame = glfwGetTime();
 	this->delta = currentFrame - lastFrame;
 	lastFrame = currentFrame;
@@ -258,7 +270,6 @@ void App::fpsUpdate() {
 			"scop - " + std::to_string((int)((1000 / this->delta) / 1000));
 		FPS += " FPS";
 		glfwSetWindowTitle(window, FPS.c_str());
-		frame = 0;
 		prevUpdate = currentFrame;
 	}
 }
@@ -345,7 +356,7 @@ void App::run() {
 		glClearColor(0.07f, 0.08f, 0.13f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		if (this->isRotating)
+		if (this->features[ROTATION])
 			this->object.rotate(-15 * this->delta, vec3f(0, 1, 0));
 
 		this->computeShadowMap();
@@ -375,25 +386,29 @@ void App::run() {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glViewport(0, 0, this->sizeVec.x, this->sizeVec.y);
 
-		if (this->isBoxRendered)
+		if (this->features[BOUND_BOX])
 			this->box.draw(projection, view, this->object.getModel());
 
-		if (this->isChromed) {
+		if (this->reflectMode) {
 			this->chromeShader.use();
 			this->chromeShader.setUniform("view", view);
 			this->chromeShader.setUniform("cameraPos", this->camera.pos);
 			this->chromeShader.setUniform("projection", projection);
+			this->chromeShader.setUniform("mode", this->reflectMode);
 			this->object.draw(this->chromeShader);
 		}
 		else
 			this->object.draw(this->shader);
 
-		this->normalsShader.use();
-		this->normalsShader.setUniform("view", view);
-		this->normalsShader.setUniform("projection", projection);
-		this->object.draw(this->normalsShader);
+		if (this->features[NORMALS]) {
+			this->normalsShader.use();
+			this->normalsShader.setUniform("view", view);
+			this->normalsShader.setUniform("projection", projection);
+			this->object.draw(this->normalsShader);
+		}
+
 		// this->viewDebugShadow();
-		this->skybox.draw(this->camera, this->isSkyboxed, this->sizeVec.x,
+		this->skybox.draw(this->camera, this->features[SKYBOX], this->sizeVec.x,
 						  this->sizeVec.y, this->modes[this->polygonMode]);
 
 		glfwSwapBuffers(window);

@@ -23,8 +23,11 @@
 
 enum
 {
-	IS_COLORED,
-	IS_TEXTURED,
+	TEXTURE,
+	ROTATION,
+	SKYBOX,
+	BOUND_BOX,
+	NORMALS,
 };
 
 class App {
@@ -45,18 +48,20 @@ class App {
 
 		std::string curObjPath;
 
-		bool isSpacePressed = false;
-		bool isTextured = true;
-		bool isRotating = true;
-		bool isSkyboxed = true;
-		bool isChromed = false;
-		bool isBoxRendered = false;
-		bool isNormalsRendered = false;
+		bool features[5];
+
+		// bool isTextured = true;
+		// bool isRotating = true;
+		// bool isSkyboxed = true;
+		// bool isChromed = false;
+		// bool isBoxRendered = false;
+		// bool isNormalsRendered = false;
 
 		float delta = 0.0f;
 		float modelRotationAngle = 90.0f;
 		float blendingFActor = 0.0f;
 		int polygonMode = 0;
+		int reflectMode = 0;
 
 		unsigned int width, height;
 		vec2u sizeVec;
@@ -74,10 +79,10 @@ class App {
 	private:
 		void closeWindow();
 		void polygonModeHandling();
+		void reflectModeHandling();
 		void moveCamera(DIRECTION dir, int factor);
 		void rotateCamera(DIRECTION dir, int factor);
 		void resetCamera();
-		void setupLight();
 		void setRenderUniforms(mat4f const &view, mat4f const &proj);
 		void computeRendering();
 		void computeShadowMap();
