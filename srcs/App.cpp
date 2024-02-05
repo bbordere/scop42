@@ -144,7 +144,8 @@ void App::init(std::string const &path, std::string const &texturePath) {
 	this->shader = Shader("shaders/default.frag", "shaders/default.vert");
 	this->initKeysCallbacks();
 
-	this->chromeShader = Shader("shaders/chrome.frag", "shaders/chrome.vert");
+	this->reflectShader =
+		Shader("shaders/reflect.frag", "shaders/reflect.vert");
 	this->normalsShader = Shader("shaders/normals.frag", "shaders/normals.vert",
 								 "shaders/normals.geom");
 	this->textures[0].loadFromFile(texturePath);
@@ -390,12 +391,12 @@ void App::run() {
 			this->box.draw(projection, view, this->object.getModel());
 
 		if (this->reflectMode) {
-			this->chromeShader.use();
-			this->chromeShader.setUniform("view", view);
-			this->chromeShader.setUniform("cameraPos", this->camera.pos);
-			this->chromeShader.setUniform("projection", projection);
-			this->chromeShader.setUniform("mode", this->reflectMode);
-			this->object.draw(this->chromeShader);
+			this->reflectShader.use();
+			this->reflectShader.setUniform("view", view);
+			this->reflectShader.setUniform("cameraPos", this->camera.pos);
+			this->reflectShader.setUniform("projection", projection);
+			this->reflectShader.setUniform("mode", this->reflectMode);
+			this->object.draw(this->reflectShader);
 		}
 		else
 			this->object.draw(this->shader);

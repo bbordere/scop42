@@ -7,6 +7,11 @@
 // #include <glm/gtc/matrix_transform.hpp>
 // #include <glm/gtc/type_ptr.hpp>
 int main(int ac, char **av) {
+	(void)ac;
+	(void)av;
+	// BmpImage image;
+	// image.extractData("res/nyan.bmp");
+
 	std::string path = "models/cube.obj";
 	std::string texture = "res/nyan.bmp";
 	if (ac == 2)
@@ -26,6 +31,3 @@ int main(int ac, char **av) {
 	}
 	app.run();
 }
-
-// File3D model;
-// model.load("models/Sword.obj");

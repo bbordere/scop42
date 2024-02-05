@@ -1,4 +1,5 @@
 #include "BmpImage.hpp"
+#include "stb_image.h"
 #include <algorithm>
 #include <array>
 
@@ -12,26 +13,78 @@ void BmpImage::extractData(std::string const &filePath) {
 	if (!file.read(reinterpret_cast<char *>(&this->infoHeader),
 				   sizeof(this->infoHeader)))
 		throw std::runtime_error("Failed to read file !");
-	if (this->infoHeader.infoHeaderSize < 40)
+	if (this->infoHeader.size < 40)
 		throw std::runtime_error("Header type not handled !");
 	if (this->infoHeader.compression)
 		throw std::runtime_error("Compression not handled !");
-	data.resize(this->infoHeader.imgWidth * this->infoHeader.imgHeight *
-				this->infoHeader.bpp / 8);
+	auto buff = file.rdbuf();
+	std::size_t size =
+		buff->pubseekoff(this->fileHeader.startAddr, file.end, file.in);
+	buff->pubseekpos(this->fileHeader.startAddr, file.in);
+	char *buffer = new char[size];
+	std::cout << "SIZE " << size / 8 << '\n';
+
+	// get file data
+	buff->sgetn(buffer, size);
+
+	// stbi_set_flip_vertically_on_load(false);
+
+	// int width, height, nrChannels;
+	// unsigned char *data =
+	// stbi_load(filePath.c_str(), &width, &height, &nrChannels, 0);
+
+	ssize_t i = (size / 8);
+	int pad = (this->infoHeader.imgWidth * (this->infoHeader.bpp / 8)) % 4;
+	std::cout << "TEST\n";
+	ssize_t temp;
+
+	while (i > 0) {
+		i -= pad + ((this->infoHeader.imgWidth * 3) - 1);
+		for (std::size_t n = 0; n < this->infoHeader.imgWidth; ++n) {
+			std::cout << "R: " << (int)((unsigned char)(buffer[i + 2])) << ", "
+					  << "G: " << (int)((unsigned char)(buffer[i + 1])) << ", "
+					  << "B: " << (int)((unsigned char)(buffer[i])) << "\n";
+			this->data.push_back(buffer[i + 2]);
+			this->data.push_back(buffer[i + 1]);
+			this->data.push_back(buffer[i]);
+			i += 3;
+		}
+		i -= ((this->infoHeader.imgWidth * 3) + 1);
+	}
+	// this->data.resize(this)
+
+	// std::cout << "PAD " << pad << '\n';
+	// // uint64_t padBuff[4];
+	// uint64_t lenRow = this->infoHeader.imgWidth * this->infoHeader.bpp;
+	// if (!pad) {
+	// 	file.seekg(this->fileHeader.startAddr, std::ios::beg);
+	// 	file.read(reinterpret_cast<char *>(this->data.data()), data.size());
+	// }
+	// else {
+	// 	for (uint16_t i = 0; i < std::abs(this->infoHeader.imgHeight); ++i) {
+	// 		file.read(
+	// 			reinterpret_cast<char *>(this->data.data() + (lenRow * i)),
+	// 			lenRow);
+	// 		// file.read(reinterpret_cast<char *>(&padBuff), pad);
+	// 	}
+	// }
+
+	// int strideSize =
+	// ((this->infoHeader.bpp * this->infoHeader.imgWidth) / 32) * 4;
+	// std::cout << this->infoHeader.bpp << '\n';
+
 	// if (this->infoHeader.imgWidth % 4 == 0) {
-	file.seekg(this->fileHeader.startAddr, std::ios::beg);
-	file.read(reinterpret_cast<char *>(this->data.data()), data.size());
 
 	// this->data.assign(buffer, buffer + data.size());
 	// }
 	// else {
-	// 	uint32_t lenRow = this->infoHeader.imgWidth * this->infoHeader.bpp / 8;
-	// 	uint32_t lenPad = pad4(lenRow) - lenRow;
-	// 	uint64_t padBuff = 0;
-	// 	for (uint16_t i = 0; i < std::abs(this->infoHeader.imgHeight); ++i) {
-	// 		file.read(reinterpret_cast<char *>(this->data.data() + lenRow * i),
-	// 				  lenRow);
-	// 		file.read(reinterpret_cast<char *>(&padBuff), lenPad);
+	// 	uint32_t lenRow = this->infoHeader.imgWidth * this->infoHeader.bpp /
+	// 8; 	uint32_t lenPad = pad4(lenRow) - lenRow; 	uint64_t padBuff =
+	// 0; 	for (uint16_t i = 0; i < std::abs(this->infoHeader.imgHeight);
+	// ++i) { 		file.read(reinterpret_cast<char *>(this->data.data() +
+	// lenRow
+	// * i), 				  lenRow); 		file.read(reinterpret_cast<char
+	// *>(&padBuff), lenPad);
 	// 	}
 
 	// 	for (int i = 0; i < this->data.size(); i += 3) {

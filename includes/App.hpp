@@ -39,7 +39,7 @@ class App {
 		File3D model3d;
 		SkyBox skybox;
 		ShadowMap shadowMap;
-		Shader chromeShader;
+		Shader reflectShader;
 		Texture textures[10];
 		Light light;
 		Object object;
@@ -49,13 +49,6 @@ class App {
 		std::string curObjPath;
 
 		bool features[5];
-
-		// bool isTextured = true;
-		// bool isRotating = true;
-		// bool isSkyboxed = true;
-		// bool isChromed = false;
-		// bool isBoxRendered = false;
-		// bool isNormalsRendered = false;
 
 		float delta = 0.0f;
 		float modelRotationAngle = 90.0f;

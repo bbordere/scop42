@@ -4,10 +4,15 @@
 #include "stb_image.h"
 
 void Texture::loadFromFile(std::string const &path) {
-	int width, height, nrChannels;
-	void *data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
-	if (!data)
-		throw std::runtime_error("Can't open texture file !");
+	BmpImage image;
+	image.extractData(path);
+	void *data = image.data.data();
+	int width = image.getInfoHeader().imgWidth;
+	int height = image.getInfoHeader().imgHeight;
+	// int width, height, nrChannels;
+	// void *data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
+	// if (!data)
+	// throw std::runtime_error("Can't open texture file !");
 	glGenTextures(1, &this->id);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -16,11 +21,11 @@ void Texture::loadFromFile(std::string const &path) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 	glBindTexture(GL_TEXTURE_2D, this->id);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_BGR,
 				 GL_UNSIGNED_BYTE, data);
 
 	glGenerateMipmap(GL_TEXTURE_2D);
-	stbi_image_free(data);
+	// stbi_image_free(data);
 }
 
 void Texture::bind() const {

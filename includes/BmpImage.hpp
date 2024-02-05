@@ -21,7 +21,7 @@ struct BmpFileHeader {
 };
 
 struct BmpInfoHeader {
-	uint32_t infoHeaderSize;
+	uint32_t size;
 	int32_t imgWidth;
 	int32_t imgHeight;
 	uint16_t planes;
