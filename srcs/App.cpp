@@ -224,6 +224,7 @@ void App::setRenderUniforms(mat4f const &view, mat4f const &proj) {
 	this->shader.setUniform("camPos", this->camera.pos);
 	this->shader.setUniform("lightSpaceMatrix", this->light.getSpace());
 	this->shader.setUniform("shadowMap", 1);
+	this->shader.setUniform("scale", this->object.getScalingFactors().x);
 }
 
 void App::computeRendering() {
@@ -248,14 +249,16 @@ void App::computeRendering() {
 Object planeObj;
 
 void App::computeShadowMap() {
-	glDisable(GL_CULL_FACE);
 
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_FRONT);
 	this->shadowMap.getShader().use();
 	this->shadowMap.getShader().setUniform("lightProj", light.getSpace());
 	glViewport(0, 0, SHADOW_RES, SHADOW_RES);
 	glBindFramebuffer(GL_FRAMEBUFFER, this->shadowMap.getFbo());
 	glClear(GL_DEPTH_BUFFER_BIT);
 	this->object.draw(this->shadowMap.getShader());
+	glDisable(GL_CULL_FACE);
 
 	// glEnable(GL_CULL_FACE);
 }

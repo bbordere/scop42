@@ -30,7 +30,6 @@ void File3D::load(std::string const &path) {
 			this->parseFace(input);
 		input.clear();
 	}
-	this->computeCenter();
 }
 
 void File3D::computeNormals(Face &face) {
@@ -45,6 +44,7 @@ void File3D::computeNormals(Face &face) {
 void File3D::computeUV(Face &face) {
 	vec3f s1 = face.vertices[1] - face.vertices[0];
 	vec3f s2 = face.vertices[2] - face.vertices[1];
+
 	vec3f norm = vec3f::cross(s1, s2).normalize();
 	norm.x = std::abs(norm.x);
 	norm.y = std::abs(norm.y);
@@ -67,23 +67,6 @@ void File3D::computeUV(Face &face) {
 		face.texCoords[0] = vec2f(face.vertices[0].x, face.vertices[0].z);
 		face.texCoords[1] = vec2f(face.vertices[1].x, face.vertices[1].z);
 		face.texCoords[2] = vec2f(face.vertices[2].x, face.vertices[2].z);
-	}
-}
-
-void File3D::computeCenter() {
-	float min[] = {std::numeric_limits<float>::max(),
-				   std::numeric_limits<float>::max(),
-				   std::numeric_limits<float>::max()};
-	float max[] = {std::numeric_limits<float>::min(),
-				   std::numeric_limits<float>::min(),
-				   std::numeric_limits<float>::min()};
-	for (std::size_t i = 0; i < this->vertices.size(); ++i) {
-		min[0] = std::min(this->vertices[i].x, min[0]);
-		min[1] = std::min(this->vertices[i].y, min[1]);
-		min[2] = std::min(this->vertices[i].z, min[2]);
-		max[0] = std::max(this->vertices[i].x, max[0]);
-		max[1] = std::max(this->vertices[i].y, max[1]);
-		max[2] = std::max(this->vertices[i].z, max[2]);
 	}
 }
 
@@ -115,11 +98,14 @@ Face File3D::makeFace(std::vector<std::string> const &input, std::size_t v1,
 
 void File3D::parseFace(std::vector<std::string> const &input) {
 	std::size_t len = input.size();
-	if (len != 4 && len != 5)
-		throw std::runtime_error("Face format not handled !");
+
+	// TODO 
+
+	// if (len != 4 && len != 5)
+	// throw std::runtime_error("Face format not handled !");
 
 	this->faces.push_back(makeFace(input, 1, 2, 3));
-	if (len == 5)
+	if (len == 6)
 		this->faces.push_back(makeFace(input, 1, 3, 4));
 }
 

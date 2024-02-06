@@ -21,8 +21,9 @@ void BmpImage::extractData(std::string const &filePath) {
 	std::size_t size =
 		buff->pubseekoff(this->fileHeader.startAddr, file.end, file.in);
 	buff->pubseekpos(this->fileHeader.startAddr, file.in);
+	// char buffer[size];
 	char *buffer = new char[size];
-	std::cout << "SIZE " << size / 8 << '\n';
+	std::cout << "SIZE " << size << '\n';
 
 	// get file data
 	buff->sgetn(buffer, size);
@@ -33,24 +34,58 @@ void BmpImage::extractData(std::string const &filePath) {
 	// unsigned char *data =
 	// stbi_load(filePath.c_str(), &width, &height, &nrChannels, 0);
 
-	ssize_t i = (size / 8);
+	// ssize_t i = (size / 8);
+	size_t i = 0;
 	int pad = (this->infoHeader.imgWidth * (this->infoHeader.bpp / 8)) % 4;
-	std::cout << "TEST\n";
-	ssize_t temp;
+	std::cout << "PAD2 "
+			  << ((infoHeader.bpp * infoHeader.imgWidth + 31) / 32) * 4 << '\n';
 
-	while (i > 0) {
-		i -= pad + ((this->infoHeader.imgWidth * 3) - 1);
+	int rowSizeInBytes = ((infoHeader.bpp * infoHeader.imgWidth + 31) / 32) * 4;
+	std::cout << "BPP " << infoHeader.bpp << '\n';
+
+	std::cout << "PAD " << pad << '\n';
+
+	while (i < rowSizeInBytes * infoHeader.imgHeight) {
 		for (std::size_t n = 0; n < this->infoHeader.imgWidth; ++n) {
-			std::cout << "R: " << (int)((unsigned char)(buffer[i + 2])) << ", "
-					  << "G: " << (int)((unsigned char)(buffer[i + 1])) << ", "
-					  << "B: " << (int)((unsigned char)(buffer[i])) << "\n";
-			this->data.push_back(buffer[i + 2]);
-			this->data.push_back(buffer[i + 1]);
 			this->data.push_back(buffer[i]);
+			this->data.push_back(buffer[i + 1]);
+			this->data.push_back(buffer[i + 2]);
 			i += 3;
 		}
-		i -= ((this->infoHeader.imgWidth * 3) + 1);
 	}
+
+	// std::cout << "TEST\n";
+	// ssize_t temp = size;
+
+	// while (i < size / 8) {
+	// 	for (std::size_t n = 0; n < this->infoHeader.imgWidth; ++n) {
+	// 		std::cout << "R: " << (int)((unsigned char)(buffer[i + 2])) << ", "
+	// 				  << "G: " << (int)((unsigned char)(buffer[i + 1])) << ", "
+	// 				  << "B: " << (int)((unsigned char)(buffer[i])) << "\n";
+	// 		this->data.push_back(buffer[i + 2]);
+	// 		this->data.push_back(buffer[i + 1]);
+	// 		this->data.push_back(buffer[i]);
+	// 		i += 3;
+	// 	}
+	// 	i += pad + 1;
+	// }
+
+	// while (i > 0) {
+	// 	i -= pad + ((this->infoHeader.imgWidth * 3) - 1);
+	// 	for (std::size_t n = 0; n < this->infoHeader.imgWidth; ++n) {
+	// 		std::cout << "R: " << (int)((unsigned char)(buffer[i + 2])) <<
+	// ", "
+	// 				  << "G: " << (int)((unsigned char)(buffer[i + 1])) <<
+	// ", "
+	// 				  << "B: " << (int)((unsigned char)(buffer[i])) << "\n";
+	// 		this->data.push_back(buffer[i + 2]);
+	// 		this->data.push_back(buffer[i + 1]);
+	// 		this->data.push_back(buffer[i]);
+	// 		i += 3;
+	// 	}
+	// 	i -= ((this->infoHeader.imgWidth * 3) + 1);
+	// }
+
 	// this->data.resize(this)
 
 	// std::cout << "PAD " << pad << '\n';
@@ -61,10 +96,9 @@ void BmpImage::extractData(std::string const &filePath) {
 	// 	file.read(reinterpret_cast<char *>(this->data.data()), data.size());
 	// }
 	// else {
-	// 	for (uint16_t i = 0; i < std::abs(this->infoHeader.imgHeight); ++i) {
-	// 		file.read(
-	// 			reinterpret_cast<char *>(this->data.data() + (lenRow * i)),
-	// 			lenRow);
+	// 	for (uint16_t i = 0; i < std::abs(this->infoHeader.imgHeight); ++i)
+	// { 		file.read( 			reinterpret_cast<char *>(this->data.data() +
+	// (lenRow * i)), 			lenRow);
 	// 		// file.read(reinterpret_cast<char *>(&padBuff), pad);
 	// 	}
 	// }

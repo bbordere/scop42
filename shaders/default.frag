@@ -19,6 +19,7 @@ uniform float factor;
 uniform sampler2D ourTexture;
 uniform sampler2D shadowMap;
 uniform int uvMappingMode;
+uniform float scale;
 
 float shadowCalc(float dotLight){
 	vec3 pos = FragPosLight.xyz / FragPosLight.w;
@@ -26,7 +27,9 @@ float shadowCalc(float dotLight){
 	if (pos.z > 1.0){
 		pos.z = 1.0;
 	}
-	float bias = max(0.03 * (1.0 - dotLight), 0.0005);
+	// float bias = max(0.05 * (1.0 - dotLight), 0.0005);
+	float bias = 0.0005 * tan(acos(dotLight));
+	bias = clamp(bias, 0, 0.05);
 
 	float shadow = 0.0;
 	vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
@@ -66,7 +69,7 @@ vec2 sphericalUv(vec3 pos)
 
 vec4 getTextureColor(){
 	if (uvMappingMode == 0)
-		return (texture(ourTexture, texCoord));
+		return (texture(ourTexture, texCoord * scale));
 	return (texture(ourTexture, sphericalUv(vPos)));
 }
 

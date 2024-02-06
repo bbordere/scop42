@@ -170,6 +170,11 @@ class Vector2 {
 			return (Vector2(this->x * x, this->y * x));
 		}
 
+		void operator*=(int x) {
+			this->x *= x;
+			this->y *= x;
+		}
+
 		Vector2 operator/(double x) const {
 			return (Vector2(this->x / x, this->y / x));
 		}
