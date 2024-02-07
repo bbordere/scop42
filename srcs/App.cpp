@@ -137,7 +137,6 @@ void App::init(std::string const &path, std::string const &texturePath) {
 
 	this->initObject(path);
 
-	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 
@@ -345,7 +344,7 @@ void App::run() {
 	this->shadowMap.init();
 	this->skybox.init();
 
-	File3D plane;
+	// File3D plane;
 	// plane.load("models/sphere.obj");
 	// planeObj.configFromFile(plane);
 	// planeObj.scale({0.05, 0.05, 0.05});

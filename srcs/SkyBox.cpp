@@ -64,8 +64,7 @@ void SkyBox::draw(Camera const &camera, bool isRendered, uint width,
 	mat4f projection = mat4f::makeIdentity();
 	view = mat4f::lookAt(camera.pos, camera.pos + camera.target, camera.up);
 	view.transformMat3();
-	projection =
-		mat4f::makePerspective(45, (float)width / height, 0.1f, 100.0f);
+	projection = mat4f::makePerspective(45, (float)width / height, 0.1f, 20.0f);
 
 	glUniformMatrix4fv(glGetUniformLocation(this->shader.programId, "view"), 1,
 					   GL_FALSE, view.getDataPtr());

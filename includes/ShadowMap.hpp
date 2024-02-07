@@ -2,7 +2,7 @@
 
 #include "Shader.hpp"
 #include "Texture.hpp"
-#define SHADOW_RES 4096
+#define SHADOW_RES 1024
 
 class ShadowMap {
 	private:

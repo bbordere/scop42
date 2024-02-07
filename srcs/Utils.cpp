@@ -19,22 +19,58 @@ std::vector<std::string> split(std::string str, std::string const &charset) {
 	return (res);
 }
 
-void split(std::string str, std::string const &charset,
+void split(std::string const &str, bool splitIndices,
 		   std::vector<std::string> &vector) {
-	std::string word;
-	std::size_t len = str.size();
-	for (std::size_t i = 0; i < len; ++i) {
-		if (charset.find(str[i]) != std::string::npos) {
-			if (!word.length())
-				continue;
-			vector.push_back(word);
-			word.clear();
+
+	std::string token;
+	std::istringstream is(str);
+	if (str.empty())
+		return;
+	while (std::getline(is, token, splitIndices ? '/' : ' ')) {
+		token.erase(0, token.find_first_not_of("\t\n\v\f\r "));
+		token.erase(token.find_last_not_of("\t\n\v\f\r ") + 1);
+		if (!token.empty()) {
+			vector.emplace_back(token);
 		}
-		else
-			word += str[i];
 	}
-	if (word.length())
-		vector.push_back(word);
+
+	// std::regex regex(R"([\s]+)");
+	// if (splitIndices)
+	// 	regex = std::regex(R"([\s/]+)");
+
+	// std::sregex_token_iterator it(str.begin(), str.end(), regex, -1);
+
+	// std::sregex_token_iterator const end_tokens;
+	// while (it != end_tokens)
+	// 	vector.push_back(*it++);
+
+	// vector.assign(words.begin(), words.end());
+
+	// size_t start = 0;
+
+	// for (size_t found = str.find(charset); found != std::string::npos;
+	// 	 found = str.find(charset, start))
+	// {
+	// 	vector.emplace_back(str.begin() + start, str.begin() + found);
+	// 	start = found + charset.size();
+	// }
+	// if (start != str.size())
+	// 	vector.emplace_back(str.begin() + start, str.end());
+
+	// std::string word;
+	// std::size_t len = str.size();
+	// for (std::size_t i = 0; i < len; ++i) {
+	// 	if (charset.find(str[i]) != std::string::npos) {
+	// 		if (!word.length())
+	// 			continue;
+	// 		vector.push_back(word);
+	// 		word.clear();
+	// 	}
+	// 	else
+	// 		word += str[i];
+	// }
+	// if (word.length())
+	// 	vector.push_back(word);
 }
 
 float degToRad(float deg) {

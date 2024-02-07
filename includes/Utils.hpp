@@ -4,6 +4,7 @@
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
 #include <cmath>
+#include <regex>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -16,22 +17,26 @@ typedef struct s_color {
 	float b;
 } t_color;
 
+// clang-format on
+
 template <typename T>
-std::ostream &operator<<(std::ostream &stream, std::vector<T> const &set) {
+std::ostream &operator<<(std::ostream &stream, std::vector<T> const &vec) {
+	if (!vec.size()) {
+		stream << "[]";
+		return (stream);
+	}
 	stream << '[';
-	for (auto it = set.cbegin(); it != set.cend() - 1; it++) {
+	for (auto it = vec.cbegin(); it != vec.cend() - 1; ++it) {
 		stream << *it << ", ";
 	}
-	stream << *(set.cend() - 1) << ']';
+	stream << *(vec.cend() - 1) << ']';
 	return (stream);
 }
 
 std::vector<std::string> split(std::string str, std::string const &charset);
-void split(std::string str, std::string const &delimiter,
+void split(std::string const &str, bool splitIndices,
 		   std::vector<std::string> &vector);
 
 float degToRad(float deg);
 void resizeHandler(GLFWwindow *window, int w, int h);
-void dropHandler(GLFWwindow* window, int count, const char** paths);
-
-// clang-format on
+void dropHandler(GLFWwindow *window, int count, char const **paths);

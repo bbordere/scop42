@@ -9,8 +9,16 @@
 int main(int ac, char **av) {
 	(void)ac;
 	(void)av;
+
+	// [A-Za-z0-9]+
+
 	// BmpImage image;
 	// image.extractData("res/nyan.bmp");
+
+	// std::vector<std::string> vec;
+	// std::string str = "1/1/1 1/1/1 1/1/1                      123";
+	// split(str, " ", vec);
+	// std::cout << vec << '\n';
 
 	std::string path = "models/cube.obj";
 	std::string texture = "res/nyan.bmp";
@@ -20,7 +28,7 @@ int main(int ac, char **av) {
 		path = av[1];
 		texture = av[2];
 	}
-
+	//
 	App app;
 	try {
 		app.init(path, texture);
@@ -30,4 +38,7 @@ int main(int ac, char **av) {
 		return (1);
 	}
 	app.run();
+
+	// File3D file;
+	// file.load(av[1]);
 }

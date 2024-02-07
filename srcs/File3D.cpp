@@ -5,7 +5,6 @@ void File3D::load(std::string const &path) {
 	this->normals.clear();
 	this->texCoords.clear();
 	this->faces.clear();
-	std::srand(std::time(nullptr));
 	std::regex obj_regex(".+(\\.obj)$");
 	if (!std::regex_match(path, obj_regex))
 		throw std::runtime_error("Bad file format !");
@@ -16,7 +15,8 @@ void File3D::load(std::string const &path) {
 	std::string line;
 	std::vector<std::string> input;
 	while (std::getline(file, line)) {
-		split(line, " ", input);
+		split(line, false, input);
+
 		if (input[0] == "v")
 			this->vertices.push_back({std::stof(input[1]), std::stof(input[2]),
 									  std::stof(input[3])});
@@ -78,7 +78,7 @@ Face File3D::makeFace(std::vector<std::string> const &input, std::size_t v1,
 		face = vertexNormal(input, v1, v2, v3);
 		return (face);
 	}
-	split(input[1], "/", tmp);
+	split(input[1], true, tmp);
 	switch (tmp.size()) {
 		case 1:
 			face = vertexOnly(input, v1, v2, v3);
@@ -99,14 +99,16 @@ Face File3D::makeFace(std::vector<std::string> const &input, std::size_t v1,
 void File3D::parseFace(std::vector<std::string> const &input) {
 	std::size_t len = input.size();
 
-	// TODO 
+	// TODO
+	std::cout << "INPUT " << len << '\n';
 
 	// if (len != 4 && len != 5)
 	// throw std::runtime_error("Face format not handled !");
 
-	this->faces.push_back(makeFace(input, 1, 2, 3));
-	if (len == 6)
-		this->faces.push_back(makeFace(input, 1, 3, 4));
+	this->faces.emplace_back(makeFace(input, 1, 2, 3));
+	// if (len == 6)
+	if (len == 5)
+		this->faces.emplace_back(makeFace(input, 1, 3, 4));
 }
 
 Face File3D::vertexOnly(std::vector<std::string> const &input, std::size_t v1,
@@ -116,6 +118,9 @@ Face File3D::vertexOnly(std::vector<std::string> const &input, std::size_t v1,
 	res.vertices[0] = getVertice(std::stoi(input[v1]));
 	res.vertices[1] = getVertice(std::stoi(input[v2]));
 	res.vertices[2] = getVertice(std::stoi(input[v3]));
+
+	// std::cout << res.vertices[0] << " " << res.vertices[1] << " "
+	//   << res.vertices[1] << '\n';
 
 	computeNormals(res);
 	computeUV(res);
@@ -132,7 +137,7 @@ Face File3D::vertexTexture(std::vector<std::string> const &input,
 	std::size_t indices[] = {v1, v2, v3};
 	std::vector<std::string> tmp;
 	for (std::size_t i = 0; i < 3; ++i) {
-		split(input[indices[i]], "/", tmp);
+		split(input[indices[i]], true, tmp);
 		res.vertices[i] = getVertice(std::stoi(tmp[0]));
 		res.texCoords[i] = getTexCoord(std::stoi(tmp[1]));
 		tmp.clear();
@@ -149,7 +154,7 @@ Face File3D::vertexTextureNormal(std::vector<std::string> const &input,
 	std::size_t indices[] = {v1, v2, v3};
 	std::vector<std::string> tmp;
 	for (std::size_t i = 0; i < 3; ++i) {
-		split(input[indices[i]], "/", tmp);
+		split(input[indices[i]], true, tmp);
 		res.vertices[i] = getVertice(std::stoi(tmp[0]));
 		res.texCoords[i] = getTexCoord(std::stoi(tmp[1]));
 		res.normals[i] = getNormal(std::stoi(tmp[2]));
@@ -166,7 +171,7 @@ Face File3D::vertexNormal(std::vector<std::string> const &input, std::size_t v1,
 	std::size_t indices[] = {v1, v2, v3};
 	std::vector<std::string> tmp;
 	for (std::size_t i = 0; i < 3; ++i) {
-		split(input[indices[i]], "/", tmp);
+		split(input[indices[i]], true, tmp);
 		res.vertices[i] = getVertice(std::stoi(tmp[0]));
 		res.normals[i] = getNormal(std::stoi(tmp[1]));
 		computeUV(res);
