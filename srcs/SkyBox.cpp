@@ -22,11 +22,13 @@ void SkyBox::init() {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	std::string facesCubemap[6] = {"skybox/right.jpg", "skybox/left.jpg",
-								   "skybox/top.jpg",   "skybox/bottom.jpg",
-								   "skybox/front.jpg", "skybox/back.jpg"};
-	glGenTextures(1, &this->textureId);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, this->textureId);
+
+	std::string facesCubemap[6] = {
+		"skybox/beach/right.jpg", "skybox/beach/left.jpg",
+		"skybox/beach/top.jpg",	  "skybox/beach/bottom.jpg",
+		"skybox/beach/front.jpg", "skybox/beach/back.jpg"};
+	glGenTextures(4, this->textures);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, this->textures[0]);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	// These are very important to prevent seams
@@ -50,13 +52,40 @@ void SkyBox::init() {
 			stbi_image_free(data);
 		}
 	}
+
+	std::string facesCubemap2[6] = {"skybox/right.jpg", "skybox/left.jpg",
+									"skybox/top.jpg",	"skybox/bottom.jpg",
+									"skybox/front.jpg", "skybox/back.jpg"};
+	glBindTexture(GL_TEXTURE_CUBE_MAP, this->textures[1]);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	// These are very important to prevent seams
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+	stbi_set_flip_vertically_on_load(false);
+	for (unsigned int i = 0; i < 6; i++) {
+		int width, height, nrChannels;
+		unsigned char *data = stbi_load(facesCubemap2[i].c_str(), &width,
+										&height, &nrChannels, 0);
+		if (data) {
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width,
+						 height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+			stbi_image_free(data);
+		}
+		else {
+			std::cout << "Failed to load texture: " << facesCubemap2[i]
+					  << std::endl;
+			stbi_image_free(data);
+		}
+	}
 }
 
 void SkyBox::draw(Camera const &camera, bool isRendered, uint width,
 				  uint height, GLenum polygonMode) {
 	if (!isRendered)
 		return;
-	glCullFace(GL_FRONT);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glDepthFunc(GL_LEQUAL);
 	this->shader.use();
@@ -74,10 +103,13 @@ void SkyBox::draw(Camera const &camera, bool isRendered, uint width,
 
 	glBindVertexArray(this->vao);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, this->textureId);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, this->textures[this->curTex]);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 	glDepthFunc(GL_LESS);
 	glPolygonMode(GL_FRONT_AND_BACK, polygonMode);
-	glCullFace(GL_BACK);
+}
+
+void SkyBox::setCurTex(std::size_t val) {
+	this->curTex = val;
 }

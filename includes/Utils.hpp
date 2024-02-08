@@ -34,7 +34,7 @@ std::ostream &operator<<(std::ostream &stream, std::vector<T> const &vec) {
 }
 
 std::vector<std::string> split(std::string str, std::string const &charset);
-void split(std::string const &str, bool splitIndices,
+void split(std::string const &str, char delimiter,
 		   std::vector<std::string> &vector);
 
 float degToRad(float deg);

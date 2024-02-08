@@ -6,9 +6,9 @@ Camera::Camera(): startingPos({0.0f, 0.0f, 0.0f}) {
 
 void Camera::reset() {
 	this->pos = startingPos;
-	this->target = vec3f(0, 0, -1);
+	this->target = vec3f(0, 0, 0);
 	this->up = vec3f(0, 1, 0);
-	this->rotation = vec3f(0, 180, 0);
+	this->rotation = vec3f(0, 0, 0);
 }
 
 void Camera::rotationHandling() {
@@ -30,5 +30,5 @@ void Camera::setStartingPos(vec3f const &startPos,
 							std::pair<vec3f, vec3f> const &bounds) {
 	this->startingPos = startPos;
 	float d = (bounds.second.y - bounds.first.y) / std::tan(45);
-	this->startingPos.x += (d * 4);
+	this->startingPos.x -= (d * 4);
 }

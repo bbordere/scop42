@@ -8,7 +8,10 @@ class SkyBox {
 	private:
 	public:
 		Shader shader;
-		GLuint vao, vbo, ebo, textureId;
+		GLuint vao, vbo, ebo;
+		std::size_t curTex = 0;
+
+		GLuint textures[4];
 
 		float const vertices[24] = {-1.0f, -1.0f, 1.0f,	 1.0f,	-1.0f, 1.0f,
 									1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, -1.0f,
@@ -24,4 +27,5 @@ class SkyBox {
 		void init();
 		void draw(Camera const &camera, bool isRendered, uint width,
 				  uint height, GLenum polygonMode);
+		void setCurTex(std::size_t val);
 };

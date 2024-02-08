@@ -47,6 +47,7 @@ class App {
 		Shader normalsShader;
 
 		std::string curObjPath;
+		std::string curTexPath;
 
 		bool features[5];
 
@@ -61,7 +62,7 @@ class App {
 
 		GLenum const modes[3] = {GL_FILL, GL_LINE, GL_POINT};
 
-		void *userPointers[2];
+		void *userPointers[3];
 
 	public:
 		App();
@@ -85,6 +86,8 @@ class App {
 		void toggleUVMapping();
 		void initKeysCallbacks();
 		void initWindow();
-		void modelChangingHandler();
+		void dropFileHandler();
 		void initObject(std::string const &path);
+
+		void setValue(std::size_t *ptr, std::size_t val);
 };

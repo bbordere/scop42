@@ -97,6 +97,26 @@ void App::initKeysCallbacks() {
 		std::function<void()>{
 			std::bind(&App::toggleBoolean, this, &this->features[NORMALS])},
 		PRESSED_ONCE);
+	this->keyManager.registerCallback(
+		GLFW_KEY_F1,
+		std::function<void()>{
+			std::bind(&App::setValue, this, &this->skybox.curTex, 0)},
+		PRESSED_ONCE);
+	this->keyManager.registerCallback(
+		GLFW_KEY_F2,
+		std::function<void()>{
+			std::bind(&App::setValue, this, &this->skybox.curTex, 1)},
+		PRESSED_ONCE);
+	this->keyManager.registerCallback(
+		GLFW_KEY_F3,
+		std::function<void()>{
+			std::bind(&App::setValue, this, &this->skybox.curTex, 2)},
+		PRESSED_ONCE);
+	this->keyManager.registerCallback(
+		GLFW_KEY_F4,
+		std::function<void()>{
+			std::bind(&App::setValue, this, &this->skybox.curTex, 3)},
+		PRESSED_ONCE);
 }
 
 void App::initWindow() {
@@ -108,7 +128,7 @@ void App::initWindow() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_SAMPLES, 4);
-	this->sizeVec = {1280, 720};
+	this->sizeVec = {500, 500};
 	this->window =
 		glfwCreateWindow(this->sizeVec.x, this->sizeVec.y, "scop", NULL, NULL);
 	if (!window) {
@@ -122,8 +142,13 @@ void App::initWindow() {
 
 	this->userPointers[0] = &this->sizeVec;
 	this->userPointers[1] = &this->curObjPath;
+	this->userPointers[2] = &this->curTexPath;
 
 	glfwSetWindowUserPointer(this->window, this->userPointers);
+}
+
+void App::setValue(std::size_t *ptr, std::size_t val) {
+	*ptr = val;
 }
 
 void App::init(std::string const &path, std::string const &texturePath) {
@@ -245,7 +270,7 @@ void App::computeRendering() {
 // #include <glm/glm.hpp>
 // #include <glm/gtc/matrix_transform.hpp>
 // #include <glm/gtc/type_ptr.hpp>
-Object planeObj;
+// Object planeObj;
 
 void App::computeShadowMap() {
 
@@ -312,11 +337,17 @@ void App::viewDebugShadow() {
 	glBindVertexArray(0);
 }
 
-void App::modelChangingHandler() {
-	static std::string path = this->curObjPath;
-	if (path != this->curObjPath) {
+void App::dropFileHandler() {
+	static std::string objPath = this->curObjPath;
+	static std::string texPath = this->curTexPath;
+	if (objPath != this->curObjPath) {
 		this->initObject(this->curObjPath);
-		path = this->curObjPath;
+		objPath = this->curObjPath;
+	}
+
+	if (texPath != this->curTexPath) {
+		this->textures[0].loadFromFile(this->curTexPath);
+		texPath = this->curTexPath;
 	}
 }
 
@@ -345,13 +376,14 @@ void App::run() {
 	this->skybox.init();
 
 	// File3D plane;
-	// plane.load("models/sphere.obj");
+	// plane.load("models/base.obj");
 	// planeObj.configFromFile(plane);
+	// planeObj.translate({0, -2, 0});
 	// planeObj.scale({0.05, 0.05, 0.05});
 	// planeObj.translate(this->object.getCenter());
 
 	while (!glfwWindowShouldClose(this->window)) {
-		this->modelChangingHandler();
+		this->dropFileHandler();
 		this->fpsUpdate();
 		this->keyManager.updateKeysStates(window);
 		this->keyManager.executeActions();
@@ -384,8 +416,6 @@ void App::run() {
 		glActiveTexture(GL_TEXTURE1);
 		this->shadowMap.bindTexture();
 
-		// planeObj.draw(this->shader);
-
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glViewport(0, 0, this->sizeVec.x, this->sizeVec.y);
 
@@ -409,6 +439,7 @@ void App::run() {
 			this->normalsShader.setUniform("projection", projection);
 			this->object.draw(this->normalsShader);
 		}
+		// planeObj.draw(this->shader);
 
 		// this->viewDebugShadow();
 		this->skybox.draw(this->camera, this->features[SKYBOX], this->sizeVec.x,

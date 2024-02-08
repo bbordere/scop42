@@ -21,129 +21,23 @@ void BmpImage::extractData(std::string const &filePath) {
 	std::size_t size =
 		buff->pubseekoff(this->fileHeader.startAddr, file.end, file.in);
 	buff->pubseekpos(this->fileHeader.startAddr, file.in);
-	// char buffer[size];
-	char *buffer = new char[size];
-	std::cout << "SIZE " << size << '\n';
 
-	// get file data
+	char *buffer = new char[size];
+
 	buff->sgetn(buffer, size);
 
-	// stbi_set_flip_vertically_on_load(false);
-
-	// int width, height, nrChannels;
-	// unsigned char *data =
-	// stbi_load(filePath.c_str(), &width, &height, &nrChannels, 0);
-
-	// ssize_t i = (size / 8);
 	size_t i = 0;
-	int pad = (this->infoHeader.imgWidth * (this->infoHeader.bpp / 8)) % 4;
-	std::cout << "PAD2 "
-			  << ((infoHeader.bpp * infoHeader.imgWidth + 31) / 32) * 4 << '\n';
-
-	int rowSizeInBytes = ((infoHeader.bpp * infoHeader.imgWidth + 31) / 32) * 4;
-	std::cout << "BPP " << infoHeader.bpp << '\n';
-
-	std::cout << "PAD " << pad << '\n';
-
+	size_t rowSizeInBytes =
+		((infoHeader.bpp * infoHeader.imgWidth + 31) / 32) * 4;
 	while (i < rowSizeInBytes * infoHeader.imgHeight) {
-		for (std::size_t n = 0; n < this->infoHeader.imgWidth; ++n) {
+		for (int32_t n = 0; n < this->infoHeader.imgWidth; ++n) {
 			this->data.push_back(buffer[i]);
 			this->data.push_back(buffer[i + 1]);
 			this->data.push_back(buffer[i + 2]);
 			i += 3;
 		}
 	}
-
-	// std::cout << "TEST\n";
-	// ssize_t temp = size;
-
-	// while (i < size / 8) {
-	// 	for (std::size_t n = 0; n < this->infoHeader.imgWidth; ++n) {
-	// 		std::cout << "R: " << (int)((unsigned char)(buffer[i + 2])) << ", "
-	// 				  << "G: " << (int)((unsigned char)(buffer[i + 1])) << ", "
-	// 				  << "B: " << (int)((unsigned char)(buffer[i])) << "\n";
-	// 		this->data.push_back(buffer[i + 2]);
-	// 		this->data.push_back(buffer[i + 1]);
-	// 		this->data.push_back(buffer[i]);
-	// 		i += 3;
-	// 	}
-	// 	i += pad + 1;
-	// }
-
-	// while (i > 0) {
-	// 	i -= pad + ((this->infoHeader.imgWidth * 3) - 1);
-	// 	for (std::size_t n = 0; n < this->infoHeader.imgWidth; ++n) {
-	// 		std::cout << "R: " << (int)((unsigned char)(buffer[i + 2])) <<
-	// ", "
-	// 				  << "G: " << (int)((unsigned char)(buffer[i + 1])) <<
-	// ", "
-	// 				  << "B: " << (int)((unsigned char)(buffer[i])) << "\n";
-	// 		this->data.push_back(buffer[i + 2]);
-	// 		this->data.push_back(buffer[i + 1]);
-	// 		this->data.push_back(buffer[i]);
-	// 		i += 3;
-	// 	}
-	// 	i -= ((this->infoHeader.imgWidth * 3) + 1);
-	// }
-
-	// this->data.resize(this)
-
-	// std::cout << "PAD " << pad << '\n';
-	// // uint64_t padBuff[4];
-	// uint64_t lenRow = this->infoHeader.imgWidth * this->infoHeader.bpp;
-	// if (!pad) {
-	// 	file.seekg(this->fileHeader.startAddr, std::ios::beg);
-	// 	file.read(reinterpret_cast<char *>(this->data.data()), data.size());
-	// }
-	// else {
-	// 	for (uint16_t i = 0; i < std::abs(this->infoHeader.imgHeight); ++i)
-	// { 		file.read( 			reinterpret_cast<char *>(this->data.data() +
-	// (lenRow * i)), 			lenRow);
-	// 		// file.read(reinterpret_cast<char *>(&padBuff), pad);
-	// 	}
-	// }
-
-	// int strideSize =
-	// ((this->infoHeader.bpp * this->infoHeader.imgWidth) / 32) * 4;
-	// std::cout << this->infoHeader.bpp << '\n';
-
-	// if (this->infoHeader.imgWidth % 4 == 0) {
-
-	// this->data.assign(buffer, buffer + data.size());
-	// }
-	// else {
-	// 	uint32_t lenRow = this->infoHeader.imgWidth * this->infoHeader.bpp /
-	// 8; 	uint32_t lenPad = pad4(lenRow) - lenRow; 	uint64_t padBuff =
-	// 0; 	for (uint16_t i = 0; i < std::abs(this->infoHeader.imgHeight);
-	// ++i) { 		file.read(reinterpret_cast<char *>(this->data.data() +
-	// lenRow
-	// * i), 				  lenRow); 		file.read(reinterpret_cast<char
-	// *>(&padBuff), lenPad);
-	// 	}
-
-	// 	for (int i = 0; i < this->data.size(); i += 3) {
-	// 		std::swap(data[i], data[i + 2]);
-	// 	}
-	// }
-	// }
-	// for (int row = 0; row < this->infoHeader.imgHeight / 2; ++row) {
-	// 	int topOffset =
-	// 		row * (this->infoHeader.imgWidth * this->infoHeader.bpp / 8);
-	// 	int bottomOffset =
-	// 		(this->infoHeader.imgHeight - 1 - row) *
-	// 		(this->infoHeader.imgWidth * this->infoHeader.bpp / 8);
-	// 	std::swap_ranges(
-	// 		this->data.begin() + topOffset,
-	// 		this->data.begin() + topOffset +
-	// 			(this->infoHeader.imgWidth * this->infoHeader.bpp / 8),
-	// 		this->data.begin() + bottomOffset);
-	// }
-
-	// if (this->infoHeader.bpp == 24) {
-	// for (int i = 0; i < this->data.size() / 2; i += 3) {
-	// 	std::swap(this->data[i], this->data[i + 2]);
-	// }
-	// }
+	delete[] buffer;
 }
 
 uint8_t *BmpImage::getPixelBuffer() {

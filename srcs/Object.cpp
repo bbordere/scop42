@@ -55,7 +55,7 @@ void Object::draw(Shader const &shader) const {
 	shader.use();
 	shader.setUniform("model", this->model);
 	glBindVertexArray(this->vao);
-	glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+	glDrawArrays(GL_TRIANGLES, 0, vertices.size() / 11);
 	glBindVertexArray(0);
 }
 
@@ -106,7 +106,7 @@ void Object::computeModelInfos(File3D const &file) {
 
 	this->boundMax = faces[0].vertices[0];
 	this->boundMin = faces[0].vertices[0];
-	for (Face face : faces) {
+	for (Face const &face : faces) {
 		for (int i = 0; i < 3; ++i) {
 
 			this->boundMax.x = std::max(this->boundMax.x, face.vertices[i].x);

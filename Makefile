@@ -1,8 +1,9 @@
 CXX = clang++
 CC = clang
 
-CXXFLAGS = -g3 -std=c++17 -I includes/ -I external/  -MMD -MP -march=native \
-# CXXFLAGS += -Wall -Wextra -Werror
+CXXFLAGS = -g3 -std=c++17 -I includes/ -I external/ -MMD -MP -march=native
+CXXFLAGS += -Wall -Wextra -Werror -Wpedantic
+
 CFLAGS = -Wall -Wextra -Werror
  
 SRCS_DIR = srcs/
@@ -27,7 +28,7 @@ NAME = scop
 all: glad_lib $(NAME)
 
 $(NAME): $(OBJS)
-	$(CXX) $(OBJS) $(CXXFLAGS) $(OBJ_DIR)glad.o -lglfw -ldl -lGL -o $(NAME) -lGLU
+	$(CXX) $(OBJS) $(CXXFLAGS) $(OBJ_DIR)glad.o -lglfw -ldl -lGL -o $(NAME)
 
 glad_lib:
 	@mkdir -p $(OBJ_DIR)

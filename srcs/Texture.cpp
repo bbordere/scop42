@@ -25,6 +25,7 @@ void Texture::loadFromFile(std::string const &path) {
 				 GL_UNSIGNED_BYTE, data);
 
 	glGenerateMipmap(GL_TEXTURE_2D);
+	image.data.clear();
 	// stbi_image_free(data);
 }
 
