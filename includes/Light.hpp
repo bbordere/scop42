@@ -19,7 +19,8 @@ class Light {
 	public:
 		Light();
 		Light(vec3f pos, vec3f color);
-		void initMatrixes();
 
+		void initMatrixes();
+		void setIntensities(vec3f const &intensities);
 		mat4f const &getSpace() const;
 };

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Color.hpp"
 #include <cmath>
 #include <cstdint>
 #include <cstring>
@@ -30,23 +31,25 @@ struct BmpInfoHeader {
 	uint32_t imgSize;
 	int32_t hRes;
 	int32_t vRes;
-	uint32_t colorUsed;
+	uint32_t ColorUsed;
 	uint32_t colorImportant;
 };
+
 // clang-format on
 
 #pragma pack(pop)
 
 class BmpImage {
 	private:
-	public:
 		BmpFileHeader fileHeader;
 		BmpInfoHeader infoHeader;
-		std::vector<uint8_t> data;
+		std::vector<ColorU> data;
 
 	public:
 		void extractData(std::string const &filePath);
-		uint8_t *getPixelBuffer();
 		BmpFileHeader const &getFileHeader();
 		BmpInfoHeader const &getInfoHeader();
+		ColorU const *getData() const;
+		void reverse();
+		void clear();
 };

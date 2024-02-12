@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Color.hpp"
 #include "Face.hpp"
 #include "Utils.hpp"
 #include "Vectors.hpp"
@@ -17,11 +18,11 @@ class File3D {
 		std::vector<vec3f> normals;
 		std::vector<vec2f> texCoords;
 
-		t_color const colorsPalette[4] = {
-			{0.3f, 0.3f, 0.3f},
-			{0.6f, 0.6f, 0.6f},
-			{0.2f, 0.2f, 0.2f},
-			{0.4f, 0.4f, 0.4f},
+		ColorF const colorsPalette[4] = {
+			{0.3f, 0.3f, 0.3f, 1.0},
+			{0.6f, 0.6f, 0.6f, 1.0},
+			{0.2f, 0.2f, 0.2f, 1.0},
+			{0.4f, 0.4f, 0.4f, 1.0},
 		};
 
 	public:

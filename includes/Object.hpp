@@ -4,6 +4,7 @@
 #include "Mat4.hpp"
 #include "Shader.hpp"
 #include "Vectors.hpp"
+#include "Vertex.hpp"
 #include "glad/glad.h"
 #include <utility>
 #include <vector>
@@ -12,7 +13,7 @@ class Object {
 	private:
 		GLuint vbo;
 		GLuint vao;
-		std::vector<float> vertices;
+		std::vector<Vertex> vertices;
 		mat4f model;
 		vec3f center;
 		vec3f boundMin;
@@ -20,8 +21,9 @@ class Object {
 		vec3f scaleFactors;
 
 	public:
+		~Object();
 		void configFromFile(File3D const &file);
-		void draw(Shader const &shader) const;
+		void draw(Shader &shader) const;
 
 		void rotate(float angle, vec3f const &axis);
 		void scale(vec3f const &scale);

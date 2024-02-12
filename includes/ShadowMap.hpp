@@ -2,7 +2,7 @@
 
 #include "Shader.hpp"
 #include "Texture.hpp"
-#define SHADOW_RES 2048
+#define SHADOW_RES 8192
 
 class ShadowMap {
 	private:
@@ -11,8 +11,10 @@ class ShadowMap {
 		Shader shader;
 
 	public:
+		~ShadowMap();
+
 		void init();
-		Shader const &getShader() const;
+		Shader &getShader();
 		GLuint getFbo() const;
 		GLuint getTexture() const;
 		void bindTexture() const;

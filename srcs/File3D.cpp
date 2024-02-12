@@ -46,7 +46,6 @@ void File3D::computeNormals(Face &face) {
 void File3D::computeUV(Face &face) {
 	vec3f s1 = face.vertices[1] - face.vertices[0];
 	vec3f s2 = face.vertices[2] - face.vertices[1];
-
 	vec3f norm = vec3f::cross(s1, s2).normalize();
 	norm.x = std::abs(norm.x);
 	norm.y = std::abs(norm.y);

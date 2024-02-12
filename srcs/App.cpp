@@ -14,109 +14,88 @@ void App::toggleUVMapping() {
 }
 
 void App::initKeysCallbacks() {
+
 	this->keyManager.registerCallback(
-		GLFW_KEY_ESCAPE,
-		std::function<void()>{std::bind(&App::closeWindow, this)}, PRESSED);
+		GLFW_KEY_ESCAPE, [this]() { this->closeWindow(); }, PRESSED);
+
 	this->keyManager.registerCallback(
-		GLFW_KEY_T,
-		std::function<void()>{std::bind(&App::polygonModeHandling, this)},
-		PRESSED_ONCE);
+		GLFW_KEY_T, [this]() { this->polygonModeHandling(); }, PRESSED_ONCE);
+
 	this->keyManager.registerCallback(
 		GLFW_KEY_SPACE,
-		std::function<void()>{
-			std::bind(&App::toggleBoolean, this, &this->features[TEXTURE])},
+		[this]() { this->features[TEXTURE] = !this->features[TEXTURE]; },
 		PRESSED_ONCE);
+
 	this->keyManager.registerCallback(
 		GLFW_KEY_R,
-		std::function<void()>{
-			std::bind(&App::toggleBoolean, this, &this->features[ROTATION])},
+		[this]() { this->features[ROTATION] = !this->features[ROTATION]; },
 		PRESSED_ONCE);
+
 	this->keyManager.registerCallback(
-		GLFW_KEY_W,
-		std::function<void()>{std::bind(&App::moveCamera, this, FORWARD, 1)},
-		PRESSED);
+		GLFW_KEY_W, [this]() { this->moveCamera(FORWARD, 1); }, PRESSED);
+
 	this->keyManager.registerCallback(
-		GLFW_KEY_S,
-		std::function<void()>{std::bind(&App::moveCamera, this, FORWARD, -1)},
-		PRESSED);
+		GLFW_KEY_S, [this]() { this->moveCamera(FORWARD, -1); }, PRESSED);
+
 	this->keyManager.registerCallback(
-		GLFW_KEY_A,
-		std::function<void()>{std::bind(&App::moveCamera, this, LEFT, -1)},
-		PRESSED);
+		GLFW_KEY_A, [this]() { this->moveCamera(LEFT, -1); }, PRESSED);
+
 	this->keyManager.registerCallback(
-		GLFW_KEY_D,
-		std::function<void()>{std::bind(&App::moveCamera, this, LEFT, 1)},
-		PRESSED);
+		GLFW_KEY_D, [this]() { this->moveCamera(LEFT, 1); }, PRESSED);
+
 	this->keyManager.registerCallback(
-		GLFW_KEY_LEFT_SHIFT,
-		std::function<void()>{std::bind(&App::moveCamera, this, UP, 1)},
-		PRESSED);
+		GLFW_KEY_LEFT_SHIFT, [this]() { this->moveCamera(UP, 1); }, PRESSED);
+
 	this->keyManager.registerCallback(
-		GLFW_KEY_LEFT_CONTROL,
-		std::function<void()>{std::bind(&App::moveCamera, this, UP, -1)},
-		PRESSED);
+		GLFW_KEY_LEFT_CONTROL, [this]() { this->moveCamera(UP, -1); }, PRESSED);
+
 	this->keyManager.registerCallback(
-		GLFW_KEY_LEFT,
-		std::function<void()>{std::bind(&App::rotateCamera, this, LEFT, -1)},
-		PRESSED);
+		GLFW_KEY_LEFT, [this]() { this->rotateCamera(LEFT, -1); }, PRESSED);
+
 	this->keyManager.registerCallback(
-		GLFW_KEY_RIGHT,
-		std::function<void()>{std::bind(&App::rotateCamera, this, LEFT, 1)},
-		PRESSED);
+		GLFW_KEY_RIGHT, [this]() { this->rotateCamera(LEFT, 1); }, PRESSED);
+
 	this->keyManager.registerCallback(
-		GLFW_KEY_UP,
-		std::function<void()>{std::bind(&App::rotateCamera, this, UP, 1)},
-		PRESSED);
+		GLFW_KEY_UP, [this]() { this->rotateCamera(UP, 1); }, PRESSED);
+
 	this->keyManager.registerCallback(
-		GLFW_KEY_DOWN,
-		std::function<void()>{std::bind(&App::rotateCamera, this, UP, -1)},
-		PRESSED);
+		GLFW_KEY_DOWN, [this]() { this->rotateCamera(UP, -1); }, PRESSED);
+
 	this->keyManager.registerCallback(
-		GLFW_KEY_F, std::function<void()>{std::bind(&App::resetCamera, this)},
-		PRESSED_ONCE);
+		GLFW_KEY_F, [this]() { this->resetCamera(); }, PRESSED_ONCE);
+
 	this->keyManager.registerCallback(
 		GLFW_KEY_G,
-		std::function<void()>{
-			std::bind(&App::toggleBoolean, this, &this->features[SKYBOX])},
+		[this]() { this->features[SKYBOX] = !this->features[SKYBOX]; },
 		PRESSED_ONCE);
+
 	this->keyManager.registerCallback(
-		GLFW_KEY_C,
-		std::function<void()>{std::bind(&App::reflectModeHandling, this)},
-		PRESSED_ONCE);
+		GLFW_KEY_C, [this]() { this->reflectModeHandling(); }, PRESSED_ONCE);
+
 	this->keyManager.registerCallback(
-		GLFW_KEY_U,
-		std::function<void()>{std::bind(&App::toggleUVMapping, this)},
-		PRESSED_ONCE);
+		GLFW_KEY_U, [this]() { this->toggleUVMapping(); }, PRESSED_ONCE);
+
 	this->keyManager.registerCallback(
 		GLFW_KEY_B,
-		std::function<void()>{
-			std::bind(&App::toggleBoolean, this, &this->features[BOUND_BOX])},
+		[this]() { this->features[BOUND_BOX] = !this->features[BOUND_BOX]; },
 		PRESSED_ONCE);
+
 	this->keyManager.registerCallback(
 		GLFW_KEY_N,
-		std::function<void()>{
-			std::bind(&App::toggleBoolean, this, &this->features[NORMALS])},
+		[this]() { this->features[NORMALS] = !this->features[NORMALS]; },
 		PRESSED_ONCE);
+
 	this->keyManager.registerCallback(
-		GLFW_KEY_F1,
-		std::function<void()>{
-			std::bind(&App::setValue, this, &this->skybox.curTex, 0)},
-		PRESSED_ONCE);
+		GLFW_KEY_F1, [this]() { this->skybox.setCurTex(0); }, PRESSED_ONCE);
+
 	this->keyManager.registerCallback(
-		GLFW_KEY_F2,
-		std::function<void()>{
-			std::bind(&App::setValue, this, &this->skybox.curTex, 1)},
-		PRESSED_ONCE);
+		GLFW_KEY_F2, [this]() { this->skybox.setCurTex(1); }, PRESSED_ONCE);
+
 	this->keyManager.registerCallback(
-		GLFW_KEY_F3,
-		std::function<void()>{
-			std::bind(&App::setValue, this, &this->skybox.curTex, 2)},
-		PRESSED_ONCE);
+		GLFW_KEY_F3, [this]() { this->skybox.setCurTex(2); }, PRESSED_ONCE);
+
 	this->keyManager.registerCallback(
-		GLFW_KEY_F4,
-		std::function<void()>{
-			std::bind(&App::setValue, this, &this->skybox.curTex, 3)},
-		PRESSED_ONCE);
+		GLFW_KEY_F4, [this]() { this->skybox.setCurTex(3); }, PRESSED_ONCE);
 }
 
 void App::initWindow() {
@@ -128,14 +107,14 @@ void App::initWindow() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_SAMPLES, 4);
-	this->sizeVec = {500, 500};
+	this->sizeVec = {1280, 720};
 	this->window =
 		glfwCreateWindow(this->sizeVec.x, this->sizeVec.y, "scop", NULL, NULL);
 	if (!window) {
 		throw std::runtime_error("Cant init Window !");
 	}
 	glfwMakeContextCurrent(this->window);
-	glfwSwapInterval(0);
+	// glfwSwapInterval(0);
 
 	glfwSetFramebufferSizeCallback(window, resizeHandler);
 	glfwSetDropCallback(window, dropHandler);
@@ -173,8 +152,7 @@ void App::init(std::string const &path, std::string const &texturePath) {
 	this->normalsShader = Shader("shaders/normals.frag", "shaders/normals.vert",
 								 "shaders/normals.geom");
 	this->textures[0].loadFromFile(texturePath);
-	this->light = Light({3, 2, 4}, {0.98, 0.92, 0.96});
-	// this->light = Light({0, 0, 4}, {0.98, 0.92, 0.96});
+	this->light = Light({-5, 6, 6}, {0.9, 0.9, 0.9});
 	this->light.initMatrixes();
 	std::memset(&this->features, 0, sizeof(this->features));
 	this->features[TEXTURE] = true;
@@ -206,12 +184,14 @@ void App::rotateCamera(DIRECTION dir, int factor) {
 }
 
 void App::polygonModeHandling() {
-	this->polygonMode = (++this->polygonMode) % 3;
+	++this->polygonMode;
+	this->polygonMode %= 3;
 	glPolygonMode(GL_FRONT_AND_BACK, this->modes[this->polygonMode]);
 }
 
 void App::reflectModeHandling() {
-	this->reflectMode = (++this->reflectMode) % 3;
+	++this->reflectMode;
+	this->reflectMode %= 3;
 }
 
 void App::resetCamera() {
@@ -239,14 +219,19 @@ void App::moveCamera(DIRECTION dir, int factor) {
 }
 
 void App::setRenderUniforms(mat4f const &view, mat4f const &proj) {
-	this->shader.setUniform("lightPos", light.pos);
-	this->shader.setUniform("lightAmbientIntensity", light.ambientIntensity);
-	this->shader.setUniform("lightDiffuseIntensity", light.diffuseIntensity);
-	this->shader.setUniform("lightSpecularIntensity", light.specularIntensity);
+	this->shader.setUniform("lightPos", this->getLightSource().pos);
+	this->shader.setUniform("lightAmbientIntensity",
+							this->getLightSource().ambientIntensity);
+	this->shader.setUniform("lightDiffuseIntensity",
+							this->getLightSource().diffuseIntensity);
+	this->shader.setUniform("lightSpecularIntensity",
+							this->getLightSource().specularIntensity);
+
 	this->shader.setUniform("view", view);
 	this->shader.setUniform("projection", proj);
 	this->shader.setUniform("camPos", this->camera.pos);
-	this->shader.setUniform("lightSpaceMatrix", this->light.getSpace());
+	this->shader.setUniform("lightSpaceMatrix",
+							this->getLightSource().getSpace());
 	this->shader.setUniform("shadowMap", 1);
 	this->shader.setUniform("scale", this->object.getScalingFactors().x);
 }
@@ -267,9 +252,6 @@ void App::computeRendering() {
 	this->shader.setUniform("factor", this->blendingFActor);
 }
 
-// #include <glm/glm.hpp>
-// #include <glm/gtc/matrix_transform.hpp>
-// #include <glm/gtc/type_ptr.hpp>
 // Object planeObj;
 
 void App::computeShadowMap() {
@@ -277,7 +259,8 @@ void App::computeShadowMap() {
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_FRONT);
 	this->shadowMap.getShader().use();
-	this->shadowMap.getShader().setUniform("lightProj", light.getSpace());
+	this->shadowMap.getShader().setUniform("lightProj",
+										   this->getLightSource().getSpace());
 	glViewport(0, 0, SHADOW_RES, SHADOW_RES);
 	glBindFramebuffer(GL_FRAMEBUFFER, this->shadowMap.getFbo());
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -355,10 +338,6 @@ void App::initObject(std::string const &path) {
 	this->model3d.load(path);
 	this->object.configFromFile(this->model3d);
 	this->curObjPath = path;
-	// std::cout << "BOUND" << this->model3d.getBoundVec() << '\n';
-	// std::cout << "CENTER" << this->model3d.getCenter() << '\n';
-	// std::cout << "MIN " << this->model3d.getMinCoord() << '\n';
-
 	if (this->object.getCenter() != vec3f(0, 0, 0))
 		this->object.translate({-object.getCenter().x, -object.getMinCoord().y,
 								-object.getCenter().z});
@@ -369,6 +348,10 @@ void App::initObject(std::string const &path) {
 	this->box.create(this->object);
 }
 
+Light const &App::getLightSource() const {
+	return (!this->features[SKYBOX] ? this->light : this->skybox.getLight());
+}
+
 void App::run() {
 
 	glUseProgram(0);
@@ -376,11 +359,16 @@ void App::run() {
 	this->skybox.init();
 
 	// File3D plane;
+	// Object planeObj;
 	// plane.load("models/base.obj");
 	// planeObj.configFromFile(plane);
-	// planeObj.translate({0, -2, 0});
-	// planeObj.scale({0.05, 0.05, 0.05});
 	// planeObj.translate(this->object.getCenter());
+
+	// File3D cube;
+	// Object lig;
+	// cube.load("models/cube.obj");
+	// lig.configFromFile(cube);
+	// lig.translate(this->skybox.getLight().pos);
 
 	while (!glfwWindowShouldClose(this->window)) {
 		this->dropFileHandler();
@@ -419,6 +407,11 @@ void App::run() {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glViewport(0, 0, this->sizeVec.x, this->sizeVec.y);
 
+		if (this->features[SKYBOX]) {
+			this->skybox.draw(this->camera, this->sizeVec,
+							  this->modes[this->polygonMode]);
+		}
+
 		if (this->features[BOUND_BOX])
 			this->box.draw(projection, view, this->object.getModel());
 
@@ -433,6 +426,8 @@ void App::run() {
 		else
 			this->object.draw(this->shader);
 
+		// lig.draw(this->shader);
+
 		if (this->features[NORMALS]) {
 			this->normalsShader.use();
 			this->normalsShader.setUniform("view", view);
@@ -442,10 +437,9 @@ void App::run() {
 		// planeObj.draw(this->shader);
 
 		// this->viewDebugShadow();
-		this->skybox.draw(this->camera, this->features[SKYBOX], this->sizeVec.x,
-						  this->sizeVec.y, this->modes[this->polygonMode]);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
+	glfwTerminate();
 }

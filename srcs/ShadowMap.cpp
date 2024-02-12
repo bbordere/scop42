@@ -1,5 +1,9 @@
 #include "ShadowMap.hpp"
 
+ShadowMap::~ShadowMap() {
+	glDeleteFramebuffers(1, &this->fbo);
+}
+
 void ShadowMap::init() {
 	this->shader = Shader("shaders/shadowMap.frag", "shaders/shadowMap.vert");
 	this->texture.createBlank(SHADOW_RES, SHADOW_RES);
@@ -12,7 +16,7 @@ void ShadowMap::init() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-Shader const &ShadowMap::getShader() const {
+Shader &ShadowMap::getShader() {
 	return (this->shader);
 }
 

@@ -1,12 +1,12 @@
 #pragma once
 
+#include "BmpImage.hpp"
 #include "Camera.hpp"
+#include "Light.hpp"
 #include "Shader.hpp"
-#include "stb_image.h"
 
 class SkyBox {
 	private:
-	public:
 		Shader shader;
 		GLuint vao, vbo, ebo;
 		std::size_t curTex = 0;
@@ -22,10 +22,20 @@ class SkyBox {
 										  4, 5, 6, 6, 7, 4, 0, 3, 2, 2, 1, 0,
 										  0, 1, 5, 5, 4, 0, 3, 7, 6, 6, 2, 3};
 
+		Light lightSources[4];
+
+	private:
+		void loadSkyboxes(std::string const &dir, std::size_t texId);
+		void initLights();
+
 	public:
 		SkyBox();
+		~SkyBox();
+
 		void init();
-		void draw(Camera const &camera, bool isRendered, uint width,
-				  uint height, GLenum polygonMode);
+		void draw(Camera const &camera, vec2u const &size, GLenum polygonMode);
 		void setCurTex(std::size_t val);
+		std::size_t getCurTex() const;
+
+		Light const &getLight() const;
 };

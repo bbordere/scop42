@@ -2,6 +2,8 @@
 
 Shader::Shader() {}
 
+Shader::~Shader() {}
+
 GLint Shader::loadShaderFile(std::string const &path, GLenum type) {
 	std::string content;
 	std::ifstream file;
@@ -54,24 +56,26 @@ void Shader::use() const {
 	glUseProgram(this->programId);
 }
 
-void Shader::setUniformImpl(std::string const &name, bool value) const {
-	glUniform1i(glGetUniformLocation(this->programId, name.c_str()), value);
+void Shader::setUniformImpl(GLint location, bool value) const {
+	glUniform1i(location, value);
 }
 
-void Shader::setUniformImpl(std::string const &name, int value) const {
-	glUniform1i(glGetUniformLocation(this->programId, name.c_str()), value);
+void Shader::setUniformImpl(GLint location, int value) const {
+	glUniform1i(location, value);
 }
 
-void Shader::setUniformImpl(std::string const &name, float value) const {
-	glUniform1f(glGetUniformLocation(this->programId, name.c_str()), value);
+void Shader::setUniformImpl(GLint location, float value) const {
+	glUniform1f(location, value);
 }
 
-void Shader::setUniformImpl(std::string const &name, vec3f const &value) const {
-	glUniform3fv(glGetUniformLocation(this->programId, name.c_str()), 1,
-				 &value.x);
+void Shader::setUniformImpl(GLint location, vec3f const &value) const {
+	glUniform3fv(location, 1, &value.x);
 }
 
-void Shader::setUniformImpl(std::string const &name, mat4f const &value) const {
-	glUniformMatrix4fv(glGetUniformLocation(this->programId, name.c_str()), 1,
-					   GL_FALSE, value.getDataPtr());
+void Shader::setUniformImpl(GLint location, mat4f const &value) const {
+	glUniformMatrix4fv(location, 1, GL_FALSE, value.getDataPtr());
+}
+
+GLuint Shader::getId() const {
+	return (this->programId);
 }

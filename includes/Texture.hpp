@@ -6,6 +6,8 @@
 
 class Texture {
 	public:
+		~Texture();
+
 		void loadFromFile(std::string const &path);
 		void createBlank(int width, int height);
 		void setParameter(GLenum param, GLint value);
@@ -14,5 +16,5 @@ class Texture {
 		GLuint getId() const;
 
 	private:
-		GLuint id;
+		GLuint id = 0;
 };

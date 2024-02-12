@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Utils.hpp"
+#include "Color.hpp"
 #include "Vectors.hpp"
 
 class Face {
@@ -8,7 +8,7 @@ class Face {
 		vec3f vertices[3];
 		vec2f texCoords[3];
 		vec3f normals[3];
-		t_color color;
+		ColorF color;
 
 	public:
 		Face();

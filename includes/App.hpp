@@ -90,4 +90,5 @@ class App {
 		void initObject(std::string const &path);
 
 		void setValue(std::size_t *ptr, std::size_t val);
+		Light const &getLightSource() const;
 };

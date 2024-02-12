@@ -6,5 +6,5 @@ Face::Face() {
 		this->texCoords[i] = {-1.0f, -1.0f};
 		this->normals[i] = {-1.0f, -1.0f, -1.0f};
 	}
-	this->color = {0, 0, 0};
+	this->color = {0, 0, 0, 1};
 }

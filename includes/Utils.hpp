@@ -9,16 +9,6 @@
 #include <string>
 #include <vector>
 
-// clang-format off
-
-typedef struct s_color {
-	float r;
-	float g;
-	float b;
-} t_color;
-
-// clang-format on
-
 template <typename T>
 std::ostream &operator<<(std::ostream &stream, std::vector<T> const &vec) {
 	if (!vec.size()) {
