@@ -8,7 +8,9 @@
 class SkyBox {
 	private:
 		Shader shader;
-		GLuint vao, vbo, ebo;
+		GLuint vao = 0;
+		GLuint vbo = 0;
+		GLuint ebo = 0;
 		std::size_t curTex = 0;
 
 		GLuint textures[4];

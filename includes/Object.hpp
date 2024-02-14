@@ -11,14 +11,15 @@
 
 class Object {
 	private:
-		GLuint vbo;
-		GLuint vao;
+		GLuint vbo = 0;
+		GLuint vao = 0;
 		std::vector<Vertex> vertices;
 		mat4f model;
 		vec3f center;
 		vec3f boundMin;
 		vec3f boundMax;
 		vec3f scaleFactors;
+		bool isTextured;
 
 	public:
 		~Object();

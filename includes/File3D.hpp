@@ -17,6 +17,7 @@ class File3D {
 		std::vector<vec3f> vertices;
 		std::vector<vec3f> normals;
 		std::vector<vec2f> texCoords;
+		bool isFileTextured = false;
 
 		ColorF const colorsPalette[4] = {
 			{0.3f, 0.3f, 0.3f, 1.0},
@@ -28,6 +29,7 @@ class File3D {
 	public:
 		void load(std::string const &path);
 		std::vector<Face> const &getFaces() const;
+		bool getTexturedStatus() const;
 
 	private:
 		void parseFace(std::vector<std::string> const &input);
@@ -52,7 +54,6 @@ class File3D {
 		Face makeFace(std::vector<std::string> const &input, std::size_t v1,
 					  std::size_t v2, std::size_t v3);
 
-		void computeCenter();
 		void computeNormals(Face &face);
 		void computeUV(Face &face);
 };

@@ -5,6 +5,7 @@ void File3D::load(std::string const &path) {
 	this->normals.clear();
 	this->texCoords.clear();
 	this->faces.clear();
+	this->isFileTextured = false;
 	std::regex obj_regex(".+(\\.obj)$");
 	if (!std::regex_match(path, obj_regex))
 		throw std::runtime_error("Bad file format !");
@@ -134,6 +135,7 @@ Face File3D::vertexTexture(std::vector<std::string> const &input,
 		tmp.clear();
 	}
 	res.color = this->colorsPalette[this->faces.size() % 4];
+	this->isFileTextured = true;
 	return (res);
 }
 
@@ -152,6 +154,7 @@ Face File3D::vertexTextureNormal(std::vector<std::string> const &input,
 		tmp.clear();
 	}
 	res.color = this->colorsPalette[this->faces.size() % 4];
+	this->isFileTextured = true;
 	return (res);
 }
 
@@ -186,4 +189,8 @@ vec3f const &File3D::getNormal(std::size_t i) const {
 
 vec2f const &File3D::getTexCoord(std::size_t i) const {
 	return (this->texCoords[i - 1]);
+}
+
+bool File3D::getTexturedStatus() const {
+	return (this->isFileTextured);
 }

@@ -152,12 +152,14 @@ void App::init(std::string const &path, std::string const &texturePath) {
 	this->normalsShader = Shader("shaders/normals.frag", "shaders/normals.vert",
 								 "shaders/normals.geom");
 	this->textures[0].loadFromFile(texturePath);
-	this->light = Light({-5, 6, 6}, {0.9, 0.9, 0.9});
+	this->light = Light({-4, 6, -2}, {0.9, 0.9, 0.9});
 	this->light.initMatrixes();
 	std::memset(&this->features, 0, sizeof(this->features));
 	this->features[TEXTURE] = true;
 	this->features[ROTATION] = true;
 	this->features[SKYBOX] = true;
+	this->shadowMap.init();
+	this->skybox.init();
 }
 
 void App::toggleBoolean(bool *val) {
@@ -353,11 +355,6 @@ Light const &App::getLightSource() const {
 }
 
 void App::run() {
-
-	glUseProgram(0);
-	this->shadowMap.init();
-	this->skybox.init();
-
 	// File3D plane;
 	// Object planeObj;
 	// plane.load("models/base.obj");
@@ -368,7 +365,8 @@ void App::run() {
 	// Object lig;
 	// cube.load("models/cube.obj");
 	// lig.configFromFile(cube);
-	// lig.translate(this->skybox.getLight().pos);
+	// lig.translate({-4, 6, -2});
+	this->object.rotate(180, {0, 1, 0});
 
 	while (!glfwWindowShouldClose(this->window)) {
 		this->dropFileHandler();
@@ -441,5 +439,8 @@ void App::run() {
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
+}
+
+App::~App() {
 	glfwTerminate();
 }

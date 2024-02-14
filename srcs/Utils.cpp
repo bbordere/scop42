@@ -1,24 +1,5 @@
 #include "Utils.hpp"
 
-std::vector<std::string> split(std::string str, std::string const &charset) {
-	std::vector<std::string> res;
-	std::string word;
-	std::size_t len = str.size();
-	for (std::size_t i = 0; i < len; ++i) {
-		if (charset.find(str[i]) != std::string::npos) {
-			if (!word.length())
-				continue;
-			res.push_back(word);
-			word.clear();
-		}
-		else
-			word += str[i];
-	}
-	if (word.length())
-		res.push_back(word);
-	return (res);
-}
-
 void split(std::string const &str, char delimiter,
 		   std::vector<std::string> &vector) {
 
@@ -66,4 +47,3 @@ void dropHandler(GLFWwindow *window, int count, char const **paths) {
 		*valuePtr = path;
 	}
 }
-

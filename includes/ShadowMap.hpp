@@ -6,7 +6,7 @@
 
 class ShadowMap {
 	private:
-		GLuint fbo;
+		GLuint fbo = 0;
 		Texture texture;
 		Shader shader;
 

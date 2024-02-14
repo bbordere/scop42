@@ -66,6 +66,7 @@ class App {
 
 	public:
 		App();
+		~App();
 		void init(std::string const &path, std::string const &texture);
 		void run();
 		void resizeWindow(GLFWwindow *window, int width, int height);

@@ -16,7 +16,6 @@ void SkyBox::loadSkyboxes(std::string const &dir, std::size_t texId) {
 
 	BmpImage image;
 	for (unsigned int i = 0; i < 6; i++) {
-
 		try {
 			image.extractData(paths[i]);
 			image.reverse();
@@ -53,7 +52,7 @@ void SkyBox::initLights() {
 		lightSources[i] = Light(pos[i], colors[i]);
 		lightSources[i].initMatrixes();
 	}
-	lightSources[2].setIntensities({1, 0.8, 1});
+	lightSources[2].setIntensities({0.75, 0.8, 1});
 }
 
 Light const &SkyBox::getLight() const {
@@ -85,11 +84,6 @@ void SkyBox::init() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 	glGenTextures(4, this->textures);
-
-	std::string facesCubemap[6] = {
-		"skybox/beach/right.bmp", "skybox/beach/left.bmp",
-		"skybox/beach/top.bmp",	  "skybox/beach/bottom.bmp",
-		"skybox/beach/front.bmp", "skybox/beach/back.bmp"};
 	glBindTexture(GL_TEXTURE_CUBE_MAP, this->textures[0]);
 
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -137,8 +131,10 @@ std::size_t SkyBox::getCurTex() const {
 }
 
 SkyBox::~SkyBox() {
-	glDeleteTextures(4, this->textures);
-	glDeleteBuffers(1, &this->vbo);
-	glDeleteBuffers(1, &this->ebo);
-	glDeleteVertexArrays(1, &this->vao);
+	if (this->vao) {
+		glDeleteTextures(4, this->textures);
+		glDeleteBuffers(1, &this->vbo);
+		glDeleteBuffers(1, &this->ebo);
+		glDeleteVertexArrays(1, &this->vao);
+	}
 }

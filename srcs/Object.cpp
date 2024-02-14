@@ -1,6 +1,7 @@
 #include "Object.hpp"
 
 void Object::configFromFile(File3D const &file) {
+	this->isTextured = file.getTexturedStatus();
 	this->vertices.clear();
 	this->scaleFactors = {1, 1, 1};
 	this->model = mat4f::makeIdentity();
@@ -66,7 +67,8 @@ void Object::translate(vec3f const &axis) {
 
 void Object::scale(vec3f const &scale) {
 	this->model.scale(scale);
-	this->scaleFactors = scale;
+	if (!this->isTextured)
+		this->scaleFactors = scale;
 
 	this->center.x /= (1 / scale.x);
 	this->center.y /= (1 / scale.y);
@@ -120,7 +122,8 @@ std::pair<vec3f, vec3f> Object::getBounds() const {
 }
 
 Object::~Object() {
-	glDeleteVertexArrays(1, &this->vao);
-	glDeleteBuffers(1, &this->vbo);
-	// 8600 / 180 453 / 1 771 / 460 583
+	if (this->vao)
+		glDeleteVertexArrays(1, &this->vao);
+	if (this->vbo)
+		glDeleteBuffers(1, &this->vbo);
 }

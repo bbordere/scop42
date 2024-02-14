@@ -1,7 +1,8 @@
 #include "ShadowMap.hpp"
 
 ShadowMap::~ShadowMap() {
-	glDeleteFramebuffers(1, &this->fbo);
+	if (this->fbo)
+		glDeleteFramebuffers(1, &this->fbo);
 }
 
 void ShadowMap::init() {

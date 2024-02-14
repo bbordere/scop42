@@ -69,7 +69,7 @@ vec2 sphericalUv(vec3 pos)
 
 vec4 getTextureColor(){
 	if (uvMappingMode == 0)
-		return (texture(ourTexture, texCoord));
+		return (texture(ourTexture, texCoord * scale));
 	return (texture(ourTexture, sphericalUv(vPos)));
 }
 
