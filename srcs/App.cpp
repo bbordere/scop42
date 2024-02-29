@@ -106,7 +106,7 @@ void App::initWindow() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_SAMPLES, 4);
+	glfwWindowHint(GLFW_SAMPLES, 8);
 	this->sizeVec = {1280, 720};
 	this->window =
 		glfwCreateWindow(this->sizeVec.x, this->sizeVec.y, "scop", NULL, NULL);
@@ -135,7 +135,6 @@ void App::init(std::string const &path, std::string const &texturePath) {
 	this->initWindow();
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-		glfwTerminate();
 		throw std::runtime_error("Cant init GLAD !");
 	}
 
@@ -268,8 +267,6 @@ void App::computeShadowMap() {
 	glClear(GL_DEPTH_BUFFER_BIT);
 	this->object.draw(this->shadowMap.getShader());
 	glDisable(GL_CULL_FACE);
-
-	// glEnable(GL_CULL_FACE);
 }
 
 void App::fpsUpdate() {
@@ -288,8 +285,8 @@ void App::fpsUpdate() {
 }
 
 void App::viewDebugShadow() {
-	unsigned int quadVAO = 0;
-	unsigned int quadVBO;
+	static unsigned int quadVAO = 0;
+	static unsigned int quadVBO;
 	Shader debug("shaders/debug.frag", "shaders/debug.vert");
 	debug.use();
 	debug.setUniform("depthMap", 1);
@@ -359,7 +356,7 @@ void App::run() {
 	// Object planeObj;
 	// plane.load("models/base.obj");
 	// planeObj.configFromFile(plane);
-	// planeObj.translate(this->object.getCenter());
+	// planeObj.translate({0, -2, 0});
 
 	// File3D cube;
 	// Object lig;
@@ -442,5 +439,6 @@ void App::run() {
 }
 
 App::~App() {
+	glfwDestroyWindow(this->window);
 	glfwTerminate();
 }

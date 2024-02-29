@@ -8,7 +8,7 @@ out vec3 color;
 out vec2 texCoord;
 out vec3 normal;
 out vec3 fragPos;
-out vec4 FragPosLight;
+out vec4 fragPosLight;
 out vec3 vPos;
 out vec3 vNormal;
 
@@ -22,7 +22,7 @@ void main() {
 	fragPos = vec3(model * vec4(aPos, 1.0));
 	color = aColor;
 	texCoord = aTexCoord;
-	FragPosLight = lightSpaceMatrix * vec4(fragPos, 1.0);
+	fragPosLight = lightSpaceMatrix * vec4(fragPos, 1.0);
 	gl_Position = projection * view * model * vec4(aPos, 1.0);
 	vPos = aPos;
 }

@@ -21,16 +21,35 @@ OBJS = $(patsubst $(SRCS_DIR)%.cpp, $(OBJ_DIR)%.o, $(FILES))
 DEPS = $(patsubst $(SRC_DIR)%.cpp, $(DEP_DIR)%.d, $(notdir $(FILES)))
 
 $(OBJ_DIR)%.o: $(SRCS_DIR)%.cpp
+	@printf "$(YELLOW)Compiling file: %s$(RESET)" $(notdir $<)
 	@mkdir -p $(OBJ_DIR) $(DEP_DIR)
-	$(CXX) $(CXXFLAGS) -MF $(patsubst $(OBJ_DIR)%.o, $(DEP_DIR)%.d, $@) -c $< -o $@
+	@$(CXX) $(CXXFLAGS) -MF $(patsubst $(OBJ_DIR)%.o, $(DEP_DIR)%.d, $@) -c $< -o $@
+	@printf "$(CLR_L)"
 
 NAME = scop
+
+CLR_L = \33[2K\r
+BLUE = \033[34m
+RESET = \033[0m
+GREEN =	\033[32m
+YELLOW = \033[33m
 
 all: $(NAME)
 
 $(NAME): $(OBJS)
+	printf "$(YELLOW)Compiling executable ...$(RESET)"
 	$(CC) external/glad/glad.c $(CFLAGS) -c -o $(OBJ_DIR)glad.o
 	$(CXX) $(OBJS) $(CXXFLAGS) $(OBJ_DIR)glad.o -lglfw -ldl -lGL -o $(NAME)
+	printf "$(CLR_L)"
+	printf "$(GREEN)Compilation complete !\n"
+	printf "$(BLUE)"
+	printf "   ____            \n"
+	printf "  / __/______  ___ \n"
+	printf " _\ \/ __/ _ \/ _ \ \n"
+	printf "/___/\__/\___/ .__/\n"
+	printf "            /_/    \n"
+	printf "$(RESET)"
+
 
 clean:
 	rm -rf $(OBJ_DIR) $(DEP_DIR)
@@ -42,4 +61,7 @@ re: fclean all
 
 -include $(DEPS)
 
-.PHONY: all clean fclean re glad_lib
+.PHONY: all clean fclean re
+
+.SILENT: clean fclean $(NAME)
+

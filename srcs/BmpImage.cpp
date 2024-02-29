@@ -36,7 +36,7 @@ void BmpImage::extractData(std::string const &filePath) {
 	std::size_t size =
 		buff->pubseekoff(this->fileHeader.startAddr, file.end, file.in);
 	buff->pubseekpos(this->fileHeader.startAddr, file.in);
-
+	this->data.reserve(size);
 	char *buffer = new char[size];
 
 	buff->sgetn(buffer, size);

@@ -4,8 +4,8 @@ Light::Light() {}
 
 Light::Light(vec3f pos, vec3f color): pos(pos), color(color) {
 	this->ambientIntensity = this->color * 0.5;
-	this->diffuseIntensity = this->color * 0.8f;
-	this->specularIntensity = this->color * 1.0f;
+	this->diffuseIntensity = this->color * 0.8;
+	this->specularIntensity = this->color * 1.0;
 }
 
 void Light::initMatrixes() {
