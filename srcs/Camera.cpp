@@ -28,6 +28,8 @@ void Camera::rotationHandling() {
 
 void Camera::setStartingPos(vec3f const &startPos,
 							std::pair<vec3f, vec3f> const &bounds) {
+	vec3f min(bounds.first);
+	vec3f max(bounds.second);
 	this->startingPos = startPos;
 	float d = (bounds.second.y - bounds.first.y) / std::tan(45);
 	this->startingPos.x -= (d * 4);

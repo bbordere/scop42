@@ -9,8 +9,6 @@
 #include <iostream>
 #include <vector>
 
-#define pad4(x) (((x >> 2) + 1) << 2)
-
 #pragma pack(push, 2)
 
 // clang-format off

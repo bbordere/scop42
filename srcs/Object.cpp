@@ -67,8 +67,7 @@ void Object::translate(vec3f const &axis) {
 
 void Object::scale(vec3f const &scale) {
 	this->model.scale(scale);
-	if (!this->isTextured)
-		this->scaleFactors = scale;
+	this->scaleFactors = scale;
 
 	this->center.x /= (1 / scale.x);
 	this->center.y /= (1 / scale.y);
@@ -115,6 +114,10 @@ void Object::computeModelInfos(File3D const &file) {
 	float factor = 1 / ((this->boundMax.y - this->boundMin.y) / 4);
 	if (factor < 1.0 || factor > 10.0)
 		this->scale(vec3f(factor, factor, factor));
+}
+
+bool Object::getTexturedStatus() const {
+	return (this->isTextured);
 }
 
 std::pair<vec3f, vec3f> Object::getBounds() const {

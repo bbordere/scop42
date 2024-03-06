@@ -49,7 +49,7 @@ void BmpImage::extractData(std::string const &filePath) {
 							static_cast<uint8_t>(buffer[i + 1]),
 							static_cast<uint8_t>(buffer[i]), 1};
 
-			this->data.push_back(color);
+			this->data.emplace_back(color);
 			i += 3;
 		}
 		i += rowSizeInBytes - (infoHeader.imgWidth * (infoHeader.bpp / 8));

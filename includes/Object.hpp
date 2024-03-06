@@ -11,6 +11,7 @@
 
 class Object {
 	private:
+	public:
 		GLuint vbo = 0;
 		GLuint vao = 0;
 		std::vector<Vertex> vertices;
@@ -35,6 +36,7 @@ class Object {
 		std::pair<vec3f, vec3f> getBounds() const;
 		mat4f const &getModel() const;
 		vec3f const &getScalingFactors() const;
+		bool getTexturedStatus() const;
 
 	private:
 		void computeModelInfos(File3D const &file);

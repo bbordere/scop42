@@ -16,6 +16,7 @@
 #include "SkyBox.hpp"
 #include "Texture.hpp"
 #include "Vectors.hpp"
+#include "VoxelMesh.hpp"
 
 #include <cmath>
 #include <exception>

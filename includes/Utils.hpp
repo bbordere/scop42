@@ -9,6 +9,8 @@
 #include <string>
 #include <vector>
 
+inline constexpr auto WHITE_SPACES = " \t\n\r\v\f";
+
 template <typename T>
 std::ostream &operator<<(std::ostream &stream, std::vector<T> const &vec) {
 	if (!vec.size()) {

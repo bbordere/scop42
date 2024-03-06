@@ -234,7 +234,9 @@ void App::setRenderUniforms(mat4f const &view, mat4f const &proj) {
 	this->shader.setUniform("lightSpaceMatrix",
 							this->getLightSource().getSpace());
 	this->shader.setUniform("shadowMap", 1);
-	this->shader.setUniform("scale", this->object.getScalingFactors().x);
+	this->shader.setUniform("scale", !this->object.getTexturedStatus() ?
+										 this->object.getScalingFactors().x :
+										 1);
 }
 
 void App::computeRendering() {
@@ -315,7 +317,7 @@ void App::viewDebugShadow() {
 							  (void *)(3 * sizeof(float)));
 	}
 	glBindVertexArray(quadVAO);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	glDrawArrays(GL_TRIANGLES, 0, 4);
 	glBindVertexArray(0);
 }
 
@@ -337,9 +339,9 @@ void App::initObject(std::string const &path) {
 	this->model3d.load(path);
 	this->object.configFromFile(this->model3d);
 	this->curObjPath = path;
-	if (this->object.getCenter() != vec3f(0, 0, 0))
-		this->object.translate({-object.getCenter().x, -object.getMinCoord().y,
-								-object.getCenter().z});
+	// if (this->object.getCenter() != vec3f(0, 0, 0))
+	this->object.translate({-object.getCenter().x, -object.getMinCoord().y,
+							-object.getCenter().z});
 
 	this->camera.setStartingPos({0, this->object.getCenter().y, 0},
 								object.getBounds());
@@ -363,7 +365,10 @@ void App::run() {
 	// cube.load("models/cube.obj");
 	// lig.configFromFile(cube);
 	// lig.translate({-4, 6, -2});
-	this->object.rotate(180, {0, 1, 0});
+	VoxelMesh vx;
+
+	// this->object.rotate(180, {0, 1, 0});
+	vx.init(this->object);
 
 	while (!glfwWindowShouldClose(this->window)) {
 		this->dropFileHandler();
@@ -410,16 +415,17 @@ void App::run() {
 		if (this->features[BOUND_BOX])
 			this->box.draw(projection, view, this->object.getModel());
 
-		if (this->reflectMode) {
-			this->reflectShader.use();
-			this->reflectShader.setUniform("view", view);
-			this->reflectShader.setUniform("cameraPos", this->camera.pos);
-			this->reflectShader.setUniform("projection", projection);
-			this->reflectShader.setUniform("mode", this->reflectMode);
-			this->object.draw(this->reflectShader);
-		}
-		else
-			this->object.draw(this->shader);
+		// if (this->reflectMode) {
+		// 	this->reflectShader.use();
+		// 	this->reflectShader.setUniform("view", view);
+		// 	this->reflectShader.setUniform("cameraPos", this->camera.pos);
+		// 	this->reflectShader.setUniform("projection", projection);
+		// 	this->reflectShader.setUniform("mode", this->reflectMode);
+		// 	this->object.draw(this->reflectShader);
+		// }
+		// else
+		// this->object.draw(this->shader);
+		vx.draw(projection, view, this->object.getModel());
 
 		// lig.draw(this->shader);
 
