@@ -114,6 +114,7 @@ void App::initWindow() {
 		throw std::runtime_error("Cant init Window !");
 	}
 	glfwMakeContextCurrent(this->window);
+
 	// glfwSwapInterval(0);
 
 	glfwSetFramebufferSizeCallback(window, resizeHandler);
@@ -124,10 +125,6 @@ void App::initWindow() {
 	this->userPointers[2] = &this->curTexPath;
 
 	glfwSetWindowUserPointer(this->window, this->userPointers);
-}
-
-void App::setValue(std::size_t *ptr, std::size_t val) {
-	*ptr = val;
 }
 
 void App::init(std::string const &path, std::string const &texturePath) {
@@ -166,18 +163,20 @@ void App::toggleBoolean(bool *val) {
 }
 
 void App::rotateCamera(DIRECTION dir, int factor) {
-	float rotaSpeed = 40.0f * this->delta;
+	float rotaSpeed = ROTATION_SPEED * this->delta;
+	vec3f const &curRot = this->camera.getRotation();
 	switch (dir) {
 		case LEFT:
-			this->camera.rotation.y += rotaSpeed * factor;
+			this->camera.rotate({0, rotaSpeed * factor, 0});
 			break;
 		case UP:
 			if (factor == 1)
-				this->camera.rotation.x =
-					std::min(this->camera.rotation.x + rotaSpeed, 89.0f);
+				this->camera.setRotation({std::min(curRot.x + rotaSpeed, 89.0f),
+										  curRot.y, curRot.z});
 			else
-				this->camera.rotation.x =
-					std::max(this->camera.rotation.x - rotaSpeed, -89.0f);
+				this->camera.setRotation(
+					{std::max(curRot.x - rotaSpeed, -89.0f), curRot.y,
+					 curRot.z});
 			break;
 		default:
 			break;
@@ -200,7 +199,7 @@ void App::resetCamera() {
 }
 
 void App::moveCamera(DIRECTION dir, int factor) {
-	float cameraSpeed = 4.0f * this->delta;
+	float cameraSpeed = CAMERA_SPEED * this->delta;
 
 	switch (dir) {
 		case FORWARD:
@@ -254,8 +253,6 @@ void App::computeRendering() {
 
 	this->shader.setUniform("factor", this->blendingFActor);
 }
-
-// Object planeObj;
 
 void App::computeShadowMap() {
 
@@ -339,7 +336,6 @@ void App::initObject(std::string const &path) {
 	this->model3d.load(path);
 	this->object.configFromFile(this->model3d);
 	this->curObjPath = path;
-	// if (this->object.getCenter() != vec3f(0, 0, 0))
 	this->object.translate({-object.getCenter().x, -object.getMinCoord().y,
 							-object.getCenter().z});
 
@@ -354,22 +350,6 @@ Light const &App::getLightSource() const {
 }
 
 void App::run() {
-	// File3D plane;
-	// Object planeObj;
-	// plane.load("models/base.obj");
-	// planeObj.configFromFile(plane);
-	// planeObj.translate({0, -2, 0});
-
-	// File3D cube;
-	// Object lig;
-	// cube.load("models/cube.obj");
-	// lig.configFromFile(cube);
-	// lig.translate({-4, 6, -2});
-	VoxelMesh vx;
-
-	// this->object.rotate(180, {0, 1, 0});
-	vx.init(this->object);
-
 	while (!glfwWindowShouldClose(this->window)) {
 		this->dropFileHandler();
 		this->fpsUpdate();
@@ -380,7 +360,7 @@ void App::run() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		if (this->features[ROTATION])
-			this->object.rotate(-15 * this->delta, vec3f(0, 1, 0));
+			this->object.rotate(OBJECT_SPEED * this->delta, vec3f(0, 1, 0));
 
 		this->computeShadowMap();
 
@@ -390,7 +370,7 @@ void App::run() {
 		this->shader.use();
 
 		mat4f projection = mat4f::makePerspective(
-			45.0f, (float)this->sizeVec.x / (float)this->sizeVec.y, 0.1f,
+			H_FOV, (float)this->sizeVec.x / (float)this->sizeVec.y, 0.1f,
 			250.0f);
 		mat4f view = mat4f::lookAt(this->camera.pos,
 								   this->camera.pos + this->camera.target,
@@ -415,19 +395,16 @@ void App::run() {
 		if (this->features[BOUND_BOX])
 			this->box.draw(projection, view, this->object.getModel());
 
-		// if (this->reflectMode) {
-		// 	this->reflectShader.use();
-		// 	this->reflectShader.setUniform("view", view);
-		// 	this->reflectShader.setUniform("cameraPos", this->camera.pos);
-		// 	this->reflectShader.setUniform("projection", projection);
-		// 	this->reflectShader.setUniform("mode", this->reflectMode);
-		// 	this->object.draw(this->reflectShader);
-		// }
-		// else
-		// this->object.draw(this->shader);
-		vx.draw(projection, view, this->object.getModel());
-
-		// lig.draw(this->shader);
+		if (this->reflectMode) {
+			this->reflectShader.use();
+			this->reflectShader.setUniform("view", view);
+			this->reflectShader.setUniform("cameraPos", this->camera.pos);
+			this->reflectShader.setUniform("projection", projection);
+			this->reflectShader.setUniform("mode", this->reflectMode);
+			this->object.draw(this->reflectShader);
+		}
+		else
+			this->object.draw(this->shader);
 
 		if (this->features[NORMALS]) {
 			this->normalsShader.use();
@@ -435,8 +412,6 @@ void App::run() {
 			this->normalsShader.setUniform("projection", projection);
 			this->object.draw(this->normalsShader);
 		}
-		// planeObj.draw(this->shader);
-
 		// this->viewDebugShadow();
 
 		glfwSwapBuffers(window);

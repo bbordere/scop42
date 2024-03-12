@@ -32,7 +32,8 @@ void BmpImage::extractData(std::string const &filePath) {
 		throw std::runtime_error("Header type not handled !");
 	if (this->infoHeader.compression)
 		throw std::runtime_error("Compression not handled !");
-	auto buff = file.rdbuf();
+
+	std::streambuf *buff = file.rdbuf();
 	std::size_t size =
 		buff->pubseekoff(this->fileHeader.startAddr, file.end, file.in);
 	buff->pubseekpos(this->fileHeader.startAddr, file.in);

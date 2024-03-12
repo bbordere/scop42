@@ -2,7 +2,7 @@ CXX = clang++
 CC = clang
 
 CXXFLAGS = -g3 -std=c++17 -I includes/ -I external/ -MMD -MP -march=native
-CXXFLAGS += -Wall -Wextra -Werror -Wpedantic -Wuninitialized -Og
+CXXFLAGS += -Wall -Wextra -Werror -Wpedantic -Wuninitialized -Ofast
 
 CFLAGS = -Wall -Wextra -Werror
 
@@ -15,7 +15,6 @@ FILES = $(SRCS_DIR)main.cpp $(SRCS_DIR)BmpImage.cpp $(SRCS_DIR)App.cpp\
 		$(SRCS_DIR)Camera.cpp $(SRCS_DIR)Face.cpp $(SRCS_DIR)Light.cpp\
 		$(SRCS_DIR)KeyManager.cpp $(SRCS_DIR)SkyBox.cpp $(SRCS_DIR)Object.cpp\
 		$(SRCS_DIR)ShadowMap.cpp $(SRCS_DIR)Texture.cpp $(SRCS_DIR)BoundingBox.cpp\
-		$(SRCS_DIR)VoxelMesh.cpp
 
 OBJS = $(patsubst $(SRCS_DIR)%.cpp, $(OBJ_DIR)%.o, $(FILES))
 

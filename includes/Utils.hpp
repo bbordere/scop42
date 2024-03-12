@@ -4,12 +4,12 @@
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
 #include <cmath>
+#include "Constants.hpp"
 #include <regex>
 #include <sstream>
 #include <string>
 #include <vector>
 
-inline constexpr auto WHITE_SPACES = " \t\n\r\v\f";
 
 template <typename T>
 std::ostream &operator<<(std::ostream &stream, std::vector<T> const &vec) {

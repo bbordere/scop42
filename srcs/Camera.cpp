@@ -34,3 +34,19 @@ void Camera::setStartingPos(vec3f const &startPos,
 	float d = (bounds.second.y - bounds.first.y) / std::tan(45);
 	this->startingPos.x -= (d * 4);
 }
+
+vec3f const &Camera::getPosition() const {
+	return (this->pos);
+}
+
+vec3f const &Camera::getRotation() const {
+	return (this->rotation);
+}
+
+void Camera::setRotation(vec3f const &newRotation) {
+	this->rotation = newRotation;
+}
+
+void Camera::rotate(vec3f const &axis) {
+	this->rotation += axis;
+}

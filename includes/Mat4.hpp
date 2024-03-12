@@ -116,11 +116,6 @@ class Mat4 {
 			return (*this);
 		}
 
-		// static Vector3<T> scaling(Vector3<T> const &vec) {
-		// 	return (Vector3(this->data[0] * vec.x, this->data[1] * vec.y,
-		// 					this->data[2] * vec.z));
-		// }
-
 		void translate(Vector3<T> const &vec) {
 			this->data[12] += vec.x;
 			this->data[13] += vec.y;

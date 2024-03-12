@@ -2,6 +2,7 @@
 
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
+#include "Constants.hpp"
 
 #include "BmpImage.hpp"
 #include "BoundingBox.hpp"
@@ -16,7 +17,6 @@
 #include "SkyBox.hpp"
 #include "Texture.hpp"
 #include "Vectors.hpp"
-#include "VoxelMesh.hpp"
 
 #include <cmath>
 #include <exception>

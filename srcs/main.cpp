@@ -9,7 +9,7 @@ int main(int ac, char **av) {
 		path = av[1];
 		texture = av[2];
 	}
-	
+
 	App app;
 	try {
 		app.init(path, texture);
@@ -19,11 +19,4 @@ int main(int ac, char **av) {
 		std::cerr << e.what() << '\n';
 		return (1);
 	}
-
-	// (void)ac;
-	// (void)av;
-	// BmpImage image;
-	// image.extractData(av[1]);
-	// File3D f;
-	// f.load(av[1]);
 }

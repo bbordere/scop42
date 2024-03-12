@@ -8,8 +8,6 @@ void split(std::string const &str, char delimiter,
 	if (str.empty())
 		return;
 	while (std::getline(is, token, delimiter)) {
-		// token.erase(0, token.find_first_not_of(WHITE_SPACES));
-		// token.erase(token.find_last_not_of(WHITE_SPACES) + 1);
 		std::size_t start = token.find_first_not_of(WHITE_SPACES);
 		start = start != std::string::npos ? start : 0;
 		std::size_t end = token.find_last_not_of(WHITE_SPACES);

@@ -1,9 +1,8 @@
 #pragma once
 
 #include "Shader.hpp"
+#include "Constants.hpp"
 #include "Texture.hpp"
-
-inline constexpr int SHADOW_RES = 4096;
 
 class ShadowMap {
 	private:
