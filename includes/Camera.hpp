@@ -5,7 +5,6 @@
 
 class Camera {
 	private:
-	public:
 		vec3f pos;
 		vec3f target;
 		vec3f up;
@@ -20,6 +19,9 @@ class Camera {
 							std::pair<vec3f, vec3f> const &bounds);
 		vec3f const &getRotation() const;
 		vec3f const &getPosition() const;
+		vec3f const &getTarget() const;
+		vec3f const &getUp() const;
 		void setRotation(vec3f const &newRotation);
 		void rotate(vec3f const &axis);
+		void movePos(vec3f const &offset);
 };

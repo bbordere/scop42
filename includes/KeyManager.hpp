@@ -22,16 +22,19 @@ enum DIRECTION
 	UP
 };
 
-class KeyState {
-	public:
-		bool isPressed;
-		bool wasPressed;
-		KEY_MODE mode;
-		std::function<void()> callback;
+// clang-format off
 
-	public:
-		KeyState();
+struct KeyState {
+	bool isPressed;
+	bool wasPressed;
+	KEY_MODE mode;
+	std::function<void()> callback;
+
+	KeyState();
 };
+
+// clang-format off
+
 
 class KeyManager {
 	private:

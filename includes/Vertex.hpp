@@ -3,8 +3,7 @@
 #include "Color.hpp"
 #include "Vectors.hpp"
 
-class Vertex {
-	public:
+struct Vertex {
 		vec3f pos;
 		ColorF color;
 		vec2f texPos;

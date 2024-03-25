@@ -43,10 +43,22 @@ vec3f const &Camera::getRotation() const {
 	return (this->rotation);
 }
 
+vec3f const &Camera::getTarget() const {
+	return (this->target);
+}
+
+vec3f const &Camera::getUp() const {
+	return (this->up);
+}
+
 void Camera::setRotation(vec3f const &newRotation) {
 	this->rotation = newRotation;
 }
 
 void Camera::rotate(vec3f const &axis) {
 	this->rotation += axis;
+}
+
+void Camera::movePos(vec3f const &offset) {
+	this->pos += offset;
 }

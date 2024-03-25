@@ -203,17 +203,19 @@ void App::moveCamera(DIRECTION dir, int factor) {
 
 	switch (dir) {
 		case FORWARD:
-			this->camera.pos += (this->camera.target * cameraSpeed) * factor;
+			this->camera.movePos((this->camera.getTarget() * cameraSpeed) *
+								 factor);
 			break;
 		case LEFT:
-			this->camera.pos += (vec3f::normalize(vec3f::cross(
-									 this->camera.target, this->camera.up)) *
-								 cameraSpeed) *
-								factor;
+			this->camera.movePos(
+				(vec3f::normalize(vec3f::cross(this->camera.getTarget(),
+											   this->camera.getUp())) *
+				 cameraSpeed) *
+				factor);
 			break;
 
 		case UP:
-			this->camera.pos += (vec3f(0, 1, 0) * cameraSpeed) * factor;
+			this->camera.movePos((vec3f(0, 1, 0) * cameraSpeed) * factor);
 			break;
 	}
 }
@@ -229,7 +231,7 @@ void App::setRenderUniforms(mat4f const &view, mat4f const &proj) {
 
 	this->shader.setUniform("view", view);
 	this->shader.setUniform("projection", proj);
-	this->shader.setUniform("camPos", this->camera.pos);
+	this->shader.setUniform("camPos", this->camera.getPosition());
 	this->shader.setUniform("lightSpaceMatrix",
 							this->getLightSource().getSpace());
 	this->shader.setUniform("shadowMap", 1);
@@ -372,9 +374,10 @@ void App::run() {
 		mat4f projection = mat4f::makePerspective(
 			H_FOV, (float)this->sizeVec.x / (float)this->sizeVec.y, 0.1f,
 			250.0f);
-		mat4f view = mat4f::lookAt(this->camera.pos,
-								   this->camera.pos + this->camera.target,
-								   this->camera.up);
+		mat4f view =
+			mat4f::lookAt(this->camera.getPosition(),
+						  this->camera.getPosition() + this->camera.getTarget(),
+						  this->camera.getUp());
 
 		this->setRenderUniforms(view, projection);
 		this->computeRendering();
@@ -398,7 +401,8 @@ void App::run() {
 		if (this->reflectMode) {
 			this->reflectShader.use();
 			this->reflectShader.setUniform("view", view);
-			this->reflectShader.setUniform("cameraPos", this->camera.pos);
+			this->reflectShader.setUniform("cameraPos",
+										   this->camera.getPosition());
 			this->reflectShader.setUniform("projection", projection);
 			this->reflectShader.setUniform("mode", this->reflectMode);
 			this->object.draw(this->reflectShader);

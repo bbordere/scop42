@@ -8,7 +8,6 @@
 template <class T>
 class Mat4 {
 	private:
-	public:
 		T data[16] = {T()};
 
 	public:

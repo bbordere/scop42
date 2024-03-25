@@ -104,7 +104,9 @@ void SkyBox::draw(Camera const &camera, vec2u const &size, GLenum polygonMode) {
 	this->shader.use();
 	mat4f view = mat4f::makeIdentity();
 	mat4f projection = mat4f::makeIdentity();
-	view = mat4f::lookAt(camera.pos, camera.pos + camera.target, camera.up);
+	view = mat4f::lookAt(camera.getPosition(),
+						 camera.getPosition() + camera.getTarget(),
+						 camera.getUp());
 	view.transformMat3();
 	projection =
 		mat4f::makePerspective(45, (float)size.x / size.y, 0.1f, 20.0f);

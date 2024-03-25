@@ -11,7 +11,6 @@
 
 class Object {
 	private:
-	public:
 		GLuint vbo = 0;
 		GLuint vao = 0;
 		std::vector<Vertex> vertices;
