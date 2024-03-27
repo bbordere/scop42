@@ -27,7 +27,7 @@ void resizeHandler(GLFWwindow *window, int w, int h) {
 		reinterpret_cast<void **>(glfwGetWindowUserPointer(window));
 	vec2u *vec = reinterpret_cast<vec2u *>(pointers[0]);
 	*vec = {static_cast<unsigned int>(w), static_cast<unsigned int>(h)};
-};
+}
 
 void dropHandler(GLFWwindow *window, int count, char const **paths) {
 	static_cast<void>(count);

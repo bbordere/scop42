@@ -1,8 +1,8 @@
-CXX = clang++
-CC = clang
+CXX = c++
+CC = cc
 
 CXXFLAGS = -g3 -std=c++17 -I includes/ -I external/ -MMD -MP -march=native
-CXXFLAGS += -Wall -Wextra -Werror -Wpedantic -Wuninitialized -Ofast
+CXXFLAGS += -Wall -Wextra -Werror -Wpedantic -Wuninitialized -O3
 
 CFLAGS = -Wall -Wextra -Werror
 

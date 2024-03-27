@@ -106,7 +106,7 @@ void App::initWindow() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_SAMPLES, 8);
+	// glfwWindowHint(GLFW_SAMPLES, 8);
 	this->sizeVec = {1280, 720};
 	this->window =
 		glfwCreateWindow(this->sizeVec.x, this->sizeVec.y, "scop", NULL, NULL);
@@ -130,7 +130,6 @@ void App::initWindow() {
 void App::init(std::string const &path, std::string const &texturePath) {
 
 	this->initWindow();
-
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 		throw std::runtime_error("Cant init GLAD !");
 	}
